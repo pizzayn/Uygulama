@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LexiGo — Okuma Yazma Öğreniyorum</title>
+<style>
+/* ========== DESIGN TOKENS ========== */
+:root {
+  --orange:#FF6B35; --orange-dk:#D94F1E; --orange-lt:#FFF0EB;
+  --blue:#3B82F6;   --blue-dk:#1D4ED8;   --blue-lt:#EFF6FF;
+  --green:#10B981;  --green-dk:#059669;  --green-lt:#ECFDF5;
+  --purple:#8B5CF6; --purple-dk:#6D28D9; --purple-lt:#F5F3FF;
+  --yellow:#F59E0B; --yellow-lt:#FFFBEB;
+  --red:#EF4444;    --red-lt:#FEF2F2;
+  --ink:#111827; --ink2:#4B5563; --ink3:#9CA3AF;
+  --paper:#FFFAF7; --card:#FFFFFF; --card2:#FFF8F4;
+  --border:#FFE4D4; --border2:#E5E7EB;
+  --r:18px; --r-sm:10px;
+  --sh:0 2px 16px rgba(255,107,53,.10);
+  --sh-lg:0 8px 40px rgba(255,107,53,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overscroll-behavior:none;}
+
+/* ========== AUTH ========== */
+#auth-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  background:linear-gradient(145deg,#FFF0EB 0%,#FFFAF7 45%,#EFF6FF 100%);
+}
+.auth-wrap{width:100%;max-width:420px;}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo-icon{
+  width:80px;height:80px;border-radius:22px;
+  background:linear-gradient(135deg,var(--orange),#FF9A5C);
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;margin:0 auto 12px;
+  box-shadow:0 8px 24px rgba(255,107,53,.35);
+}
+.auth-logo h1{font-size:30px;font-weight:900;color:var(--orange);letter-spacing:-0.5px;}
+.auth-logo p{font-size:14px;color:var(--ink2);margin-top:4px;}
+.auth-card{
+  background:var(--card);border-radius:24px;
+  padding:28px 24px;
+  box-shadow:0 4px 32px rgba(0,0,0,.10);
+  border:1.5px solid var(--border);
+}
+.auth-tabs{
+  display:flex;background:var(--card2);border-radius:12px;
+  padding:4px;margin-bottom:22px;
+}
+.auth-tab{
+  flex:1;padding:10px;border-radius:9px;border:none;
+  font-size:14px;font-weight:700;cursor:pointer;
+  color:var(--ink3);background:none;transition:all .2s;
+}
+.auth-tab.on{
+  background:var(--card);color:var(--orange);
+  box-shadow:0 1px 6px rgba(0,0,0,.08);
+}
+.auth-panel{display:none;}
+.auth-panel.on{display:block;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.field input{
+  width:100%;padding:13px 15px;
+  border:1.5px solid var(--border2);border-radius:11px;
+  font-size:15px;font-family:inherit;outline:none;
+  transition:border-color .2s;background:var(--card);
+}
+.field input:focus{border-color:var(--orange);}
+.field input::placeholder{color:var(--ink3);}
+.av-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.av-btn{
+  width:52px;height:52px;border-radius:50%;
+  border:2.5px solid var(--border2);
+  font-size:26px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;background:none;
+}
+.av-btn:hover,.av-btn.on{border-color:var(--orange);background:var(--orange-lt);transform:scale(1.08);}
+.age-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.age-btn{
+  padding:8px 14px;border-radius:20px;
+  border:1.5px solid var(--border2);
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .2s;background:none;color:var(--ink2);
+}
+.age-btn:hover,.age-btn.on{background:var(--orange);color:white;border-color:var(--orange);}
+.btn-auth{
+  width:100%;padding:15px;border-radius:13px;border:none;
+  font-size:16px;font-weight:800;cursor:pointer;
+  background:var(--orange);color:white;
+  box-shadow:0 4px 18px rgba(255,107,53,.38);
+  transition:all .2s;margin-top:4px;
+}
+.btn-auth:hover{background:var(--orange-dk);transform:translateY(-1px);}
+.btn-auth:active{transform:translateY(0);}
+.auth-or{
+  text-align:center;color:var(--ink3);font-size:12px;
+  margin:14px 0;position:relative;
+}
+.auth-or::before,.auth-or::after{
+  content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border2);
+}
+.auth-or::before{left:0;}.auth-or::after{right:0;}
+.btn-google{
+  width:100%;padding:13px;border-radius:12px;
+  border:1.5px solid var(--border2);
+  background:var(--card);color:var(--ink);
+  font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .2s;
+}
+.btn-google:hover{background:#F9FAFB;}
+.auth-hint{text-align:center;font-size:12px;color:var(--ink3);margin-top:12px;}
+.auth-hint b{color:var(--orange);}
+
+/* ========== APP SHELL ========== */
+#app{display:none;flex-direction:column;height:100dvh;height:100vh;}
+
+/* TOP BAR */
+.topbar{
+  background:var(--card);border-bottom:1.5px solid var(--border);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:100;flex-shrink:0;
+}
+.tb-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--orange-lt);border:2px solid var(--orange);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;flex-shrink:0;
+}
+.tb-info{flex-shrink:0;}
+.tb-name{font-size:14px;font-weight:800;line-height:1.2;}
+.tb-lvl{font-size:11px;font-weight:700;color:var(--purple);background:var(--purple-lt);padding:2px 8px;border-radius:20px;display:inline-block;margin-top:2px;}
+.tb-mid{flex:1;display:flex;align-items:center;gap:8px;min-width:0;padding:0 4px;}
+.tb-xp-label{font-size:12px;font-weight:700;color:var(--orange);white-space:nowrap;}
+.xpbar-bg{flex:1;height:8px;background:var(--border);border-radius:99px;min-width:30px;}
+.xpbar-fill{height:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));border-radius:99px;transition:width .6s ease;}
+.tb-streak{font-size:13px;font-weight:800;color:var(--orange);display:flex;align-items:center;gap:3px;flex-shrink:0;}
+
+/* SCROLL AREA */
+.scroll-area{flex:1;overflow-y:auto;overscroll-behavior:contain;}
+
+/* BOTTOM NAV */
+.bottomnav{
+  background:var(--card);border-top:1.5px solid var(--border);
+  display:flex;flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.bnav{
+  flex:1;padding:10px 4px 8px;
+  border:none;background:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--ink3);font-size:9px;font-weight:700;
+  transition:color .2s;
+}
+.bnav .bi{font-size:23px;line-height:1;}
+.bnav.on{color:var(--orange);}
+
+/* ========== SCREENS ========== */
+.screen{display:none;padding:20px;max-width:900px;margin:0 auto;}
+.screen.on{display:block;}
+.ph{margin-bottom:20px;}
+.ph h1{font-size:23px;font-weight:900;letter-spacing:-0.3px;}
+.ph p{font-size:13px;color:var(--ink2);margin-top:4px;}
+
+/* ========== COMPONENTS ========== */
+/* CARD */
+.card{background:var(--card);border-radius:var(--r);border:1.5px solid var(--border);padding:18px;}
+.card-sm{border-radius:var(--r-sm);}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* BUTTON */
+.btn{
+  padding:11px 22px;border-radius:11px;border:none;
+  cursor:pointer;font-size:14px;font-weight:700;
+  font-family:inherit;transition:all .2s;display:inline-flex;
+  align-items:center;gap:6px;
+}
+.btn:active{transform:scale(.96);}
+.btn-orange{background:var(--orange);color:white;box-shadow:0 3px 12px rgba(255,107,53,.3);}
+.btn-orange:hover{background:var(--orange-dk);}
+.btn-blue{background:var(--blue);color:white;}
+.btn-blue:hover{background:var(--blue-dk);}
+.btn-green{background:var(--green);color:white;}
+.btn-ghost{background:var(--card);border:1.5px solid var(--border2);color:var(--ink2);}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:9px;}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--card2);border-radius:13px;padding:4px;margin-bottom:16px;flex-wrap:wrap;}
+.tab{flex:1;min-width:72px;padding:8px 6px;border-radius:9px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink3);background:none;transition:all .2s;}
+.tab.on{background:var(--card);color:var(--orange);box-shadow:0 1px 6px rgba(0,0,0,.08);}
+
+/* PILLS */
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.pill{padding:7px 15px;border-radius:20px;border:1.5px solid var(--border2);background:var(--card);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--ink2);font-family:inherit;}
+.pill:hover,.pill.on{background:var(--orange);color:white;border-color:var(--orange);}
+
+/* XP PILL */
+.xp-chip{background:var(--orange-lt);color:var(--orange);font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+
+/* SECTION TITLE */
+.sec-title{font-size:14px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+/* BACK BTN */
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:9px;
+  border:1.5px solid var(--border2);background:var(--card);
+  font-size:13px;font-weight:600;color:var(--ink2);
+  cursor:pointer;margin-bottom:16px;transition:all .2s;font-family:inherit;
+}
+.back-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+/* STATUS BADGES */
+.badge-ok{background:var(--green);color:white;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;}
+.badge-err{background:var(--red);color:white;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;}
+
+/* ========== DASHBOARD ========== */
+.hero-dash{
+  background:linear-gradient(135deg,var(--orange),#FF9A5C);
+  border-radius:var(--r);padding:22px;color:white;margin-bottom:16px;
+}
+.hero-dash h2{font-size:20px;font-weight:900;}
+.hero-dash p{opacity:.9;font-size:13px;margin-top:3px;}
+.hero-stats{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.hstat{background:rgba(255,255,255,.22);border-radius:10px;padding:10px 14px;text-align:center;min-width:64px;}
+.hstat-v{font-size:20px;font-weight:900;line-height:1;}
+.hstat-l{font-size:10px;opacity:.85;margin-top:2px;}
+.task-list{background:var(--card);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden;}
+.task-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+}
+.task-row:last-child{border-bottom:none;}
+.task-row:hover{background:var(--orange-lt);}
+.task-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.task-info{flex:1;min-width:0;}
+.task-info strong{font-size:13px;font-weight:700;display:block;}
+.task-info span{font-size:11px;color:var(--ink2);}
+
+/* ========== ALPHABET ========== */
+.alpha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;}
+.alpha-btn{
+  background:var(--card);border:2px solid var(--border);border-radius:12px;
+  padding:11px 5px;text-align:center;cursor:pointer;
+  transition:all .22s;font-family:inherit;
+}
+.alpha-btn:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:var(--sh);}
+.alpha-btn.learned{border-color:var(--green);background:var(--green-lt);}
+.alpha-btn.sel{border-color:var(--orange);background:var(--orange-lt);}
+.ab{font-size:28px;font-weight:900;color:var(--orange);line-height:1;}
+.asml{font-size:16px;color:var(--ink2);margin-top:2px;}
+.atag{font-size:9px;color:var(--ink3);margin-top:3px;}
+/* LETTER DETAIL */
+.ldet{
+  background:var(--card);border-radius:var(--r);
+  border:2px solid var(--orange);padding:20px;margin-top:14px;
+  animation:fadeUp .3s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.ldet-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.ldet-big{font-size:76px;font-weight:900;color:var(--orange);line-height:1;}
+.ldet-sm{font-size:44px;color:var(--ink3);margin-top:4px;font-weight:800;}
+.sound-btn{
+  width:54px;height:54px;border-radius:50%;
+  background:var(--orange);color:white;font-size:22px;
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(255,107,53,.35);
+  transition:transform .2s;font-family:inherit;
+}
+.sound-btn:hover{transform:scale(1.1);}
+.ex-grid{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;}
+.ex-card{
+  background:var(--orange-lt);border-radius:var(--r-sm);
+  padding:12px;text-align:center;flex:1;min-width:80px;
+}
+.ex-emoji{font-size:28px;}
+.ex-word{font-size:13px;font-weight:700;margin-top:5px;}
+.ex-word .hl{color:var(--orange);font-size:17px;}
+/* letter quiz wrapper */
+.lq-done{
+  background:var(--green-lt);border-radius:var(--r-sm);
+  border:1.5px solid var(--green);padding:16px;text-align:center;
+}
+
+/* ========== SYLLABLE ========== */
+.syl-btn{
+  background:var(--blue-lt);border:2px solid var(--blue);
+  border-radius:var(--r-sm);padding:11px 15px;
+  font-size:23px;font-weight:900;color:var(--blue);
+  cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.syl-btn.vowel-btn{background:var(--orange-lt);border-color:var(--orange);color:var(--orange);}
+.syl-btn.picked{transform:scale(1.1);box-shadow:0 4px 14px rgba(59,130,246,.3);}
+.syl-btn.vowel-btn.picked{box-shadow:0 4px 14px rgba(255,107,53,.3);}
+.syl-result{font-size:52px;font-weight:900;color:var(--green);text-align:center;padding:14px;letter-spacing:4px;line-height:1;}
+.syl-part{display:inline-block;padding:5px 9px;border-radius:7px;font-size:19px;font-weight:800;}
+
+/* ========== READING ========== */
+.read-box{
+  background:var(--card);border-radius:var(--r);
+  border:2px solid var(--border);padding:22px;
+  font-size:22px;line-height:2.6;
+}
+.rword{
+  display:inline;cursor:pointer;
+  border-radius:4px;padding:1px 3px;
+  transition:background .15s;
+}
+.rword:hover{background:var(--yellow-lt);}
+.hdot{color:var(--ink3);font-size:13px;margin:0 1px;}
+
+/* ========== SENTENCE BUILDER ========== */
+.wbank{
+  display:flex;gap:7px;flex-wrap:wrap;min-height:52px;
+  padding:12px;border-radius:var(--r-sm);
+  background:var(--card2);border:1.5px dashed var(--border2);
+}
+.wchip{
+  padding:8px 14px;border-radius:9px;
+  font-size:16px;font-weight:700;cursor:pointer;
+  font-family:inherit;border:2px solid transparent;
+  transition:all .2s;
+}
+.wchip.avail{background:var(--blue-lt);color:var(--blue);border-color:var(--blue);}
+.wchip.avail:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(59,130,246,.25);}
+.wchip.placed{background:var(--green-lt);color:var(--green);border-color:var(--green);}
+.wchip.used{opacity:.3;pointer-events:none;background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8;}
+.sdrop{
+  min-height:58px;padding:11px;border-radius:var(--r-sm);
+  background:white;border:2px dashed var(--green);
+  display:flex;gap:7px;flex-wrap:wrap;align-items:center;
+}
+.sdrop-hint{color:var(--ink3);font-size:13px;}
+
+/* ========== ACTIVITIES ========== */
+.act-card{
+  background:var(--card);border-radius:var(--r);
+  border:1.5px solid var(--border);padding:17px;
+  cursor:pointer;transition:all .2s;
+}
+.act-card:hover{box-shadow:var(--sh-lg);transform:translateY(-3px);}
+.act-emoji{font-size:36px;margin-bottom:9px;}
+.act-title{font-size:14px;font-weight:800;}
+.act-sub{font-size:11px;color:var(--ink2);margin-top:3px;}
+.act-xp{
+  font-size:11px;font-weight:700;color:var(--orange);
+  background:var(--orange-lt);padding:3px 9px;border-radius:20px;
+  display:inline-block;margin-top:7px;
+}
+
+/* ========== QUIZ ========== */
+.q-opt{
+  padding:13px 16px;border-radius:var(--r-sm);
+  border:2px solid var(--border2);background:var(--card);
+  cursor:pointer;font-size:16px;font-weight:600;
+  text-align:left;transition:all .2s;font-family:inherit;
+  display:block;width:100%;
+}
+.q-opt:hover{border-color:var(--orange);background:var(--orange-lt);}
+.q-opt.cor{border-color:var(--green);background:var(--green-lt);color:var(--green);}
+.q-opt.wrn{border-color:var(--red);background:var(--red-lt);color:var(--red);}
+
+/* ========== MATCH GAME ========== */
+.match-tile{
+  background:var(--card);border:2px solid var(--border2);
+  border-radius:var(--r-sm);padding:13px;text-align:center;
+  cursor:pointer;transition:all .2s;font-size:17px;font-weight:700;
+  font-family:inherit;
+}
+.match-tile:hover{border-color:var(--orange);background:var(--orange-lt);}
+.match-tile.picked{border-color:var(--orange);background:var(--orange-lt);}
+.match-tile.matched{border-color:var(--green);background:var(--green-lt);opacity:.6;pointer-events:none;}
+.match-tile.wrong{border-color:var(--red);background:var(--red-lt);}
+
+/* ========== WRITE ========== */
+.write-input{
+  width:100%;border:2px solid var(--border2);border-radius:var(--r-sm);
+  padding:13px;font-size:18px;font-family:inherit;outline:none;
+  min-height:80px;transition:border-color .2s;resize:vertical;line-height:1.8;
+}
+.write-input:focus{border-color:var(--orange);}
+
+/* ========== PROGRESS BARS ========== */
+.pbar-bg{background:var(--border2);border-radius:99px;height:9px;}
+.pbar-fill{border-radius:99px;height:9px;transition:width .7s ease;}
+.prog-row{margin-bottom:13px;}
+.prog-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-bottom:5px;}
+
+/* ========== TOAST ========== */
+.toast{
+  position:fixed;bottom:76px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(17,24,39,.95);color:white;
+  padding:10px 20px;border-radius:12px;
+  font-size:13px;font-weight:600;z-index:9999;
+  opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;max-width:90vw;
+  backdrop-filter:blur(8px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ========== XP POPUP ========== */
+.xp-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.xp-overlay.show{opacity:1;pointer-events:auto;}
+.xp-pop{
+  background:var(--card);border-radius:22px;
+  padding:32px 40px;text-align:center;
+  box-shadow:var(--sh-lg);border:2px solid var(--orange);
+  transform:scale(.8);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  max-width:300px;width:100%;
+}
+.xp-overlay.show .xp-pop{transform:scale(1);}
+.xp-emoji{font-size:56px;margin-bottom:8px;display:block;}
+.xp-title{font-size:24px;font-weight:900;color:var(--orange);}
+.xp-msg{color:var(--ink2);margin:8px 0 18px;font-size:14px;}
+.xp-stars{font-size:28px;margin-bottom:6px;}
+
+/* ========== LIBRARY ========== */
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;padding-bottom:8px;}
+.book-card{
+  background:var(--card);border-radius:14px;
+  border:1.5px solid var(--border);overflow:hidden;
+  cursor:pointer;transition:all .22s;
+}
+.book-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);}
+.book-cover{
+  height:140px;display:flex;align-items:center;justify-content:center;
+  font-size:52px;position:relative;
+}
+.book-badge{
+  position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.45);color:white;
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;
+}
+.book-badge.done{background:var(--green);}
+.book-info{padding:10px 12px 12px;}
+.book-title{font-size:13px;font-weight:800;line-height:1.3;margin-bottom:3px;}
+.book-meta{font-size:11px;color:var(--ink3);}
+.book-prog-bar{height:4px;background:var(--border);border-radius:99px;margin-top:8px;}
+.book-prog-fill{height:4px;background:var(--orange);border-radius:99px;transition:width .4s;}
+
+/* READER */
+.reader-wrap{max-width:660px;margin:0 auto;}
+.reader-top{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 0;margin-bottom:16px;
+  border-bottom:1.5px solid var(--border);
+  flex-wrap:wrap;
+}
+.reader-title{font-size:16px;font-weight:900;flex:1;}
+.page-indicator{
+  font-size:13px;font-weight:700;color:var(--ink3);
+  background:var(--card2);padding:5px 12px;border-radius:20px;
+}
+.page-card{
+  background:var(--card);border-radius:var(--r);
+  border:1.5px solid var(--border);padding:24px;
+  min-height:320px;
+  display:flex;flex-direction:column;
+  box-shadow:var(--sh);
+}
+.page-illustration{font-size:72px;text-align:center;margin-bottom:16px;line-height:1;}
+.page-text{
+  flex:1;font-size:20px;line-height:2.5;color:var(--ink);
+  text-align:center;
+}
+.page-text .rword{cursor:pointer;border-radius:4px;padding:1px 3px;transition:background .15s;}
+.page-text .rword:hover{background:var(--yellow-lt);}
+.page-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:18px;gap:10px;
+}
+.page-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;flex:1;}
+.page-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--border);transition:background .3s;cursor:pointer;
+}
+.page-dot.read{background:var(--green);}
+.page-dot.current{background:var(--orange);}
+.reader-controls{
+  display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap;
+}
+
+@media(max-width:560px){
+  .book-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .book-cover{height:120px;font-size:42px;}
+  .page-text{font-size:17px;line-height:2.2;}
+  .page-illustration{font-size:56px;}
+}
+
+@media(max-width:560px){
+  .screen{padding:14px;}
+  .g3{grid-template-columns:1fr 1fr;}
+  .g4{grid-template-columns:1fr 1fr;}
+  .read-box{font-size:19px;line-height:2.4;}
+  .syl-btn{font-size:19px;padding:9px 12px;}
+  .ab{font-size:24px;}
+  .hero-dash h2{font-size:18px;}
+  .ldet-big{font-size:64px;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+}
+
+/* LOGOUT BUTTON */
+.tb-logout-btn{
+  width:36px;height:36px;border-radius:10px;
+  border:1.5px solid var(--border);
+  background:var(--card);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+}
+.tb-logout-btn:hover{background:var(--red-lt);border-color:var(--red);}
+
+/* CONFIRM MODAL */
+.confirm-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:600;display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.confirm-overlay.show{opacity:1;pointer-events:auto;}
+.confirm-box{
+  background:var(--card);border-radius:20px;padding:28px 24px;
+  max-width:320px;width:100%;text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.18);
+  transform:scale(.85);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.confirm-overlay.show .confirm-box{transform:scale(1);}
+.confirm-icon{font-size:48px;margin-bottom:12px;}
+.confirm-title{font-size:18px;font-weight:900;margin-bottom:6px;}
+.confirm-msg{font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btns .btn{flex:1;justify-content:center;}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">📚</div>
+      <h1>LexiGo</h1>
+      <p>Okuma &amp; Yazma Öğrenme Platformu</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab on" onclick="authSwitch(this,'login')">Giriş Yap</button>
+        <button class="auth-tab" onclick="authSwitch(this,'register')">Yeni Hesap</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="auth-panel on" id="panel-login">
+        <div class="field"><label>E-posta</label><input type="email" id="l-email" placeholder="ad@example.com" autocomplete="email"></div>
+        <div class="field"><label>Şifre</label><input type="password" id="l-pw" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="btn-auth" onclick="doLogin()">Giriş Yap →</button>
+        <div class="auth-or">veya</div>
+        <button class="btn-google" onclick="doGoogle()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+          Google ile Giriş Yap
+        </button>
+        <p class="auth-hint">Demo için herhangi bir bilgi girebilirsin 👋</p>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-panel" id="panel-register">
+        <div class="field"><label>Adın</label><input type="text" id="r-name" placeholder="Adını gir" autocomplete="given-name"></div>
+        <div class="field"><label>E-posta</label><input type="email" id="r-email" placeholder="ad@example.com" autocomplete="email"></div>
+        <div class="field"><label>Şifre (en az 6 karakter)</label><input type="password" id="r-pw" placeholder="••••••••" autocomplete="new-password"></div>
+        <div class="field">
+          <label>Avatarını seç</label>
+          <div class="av-pick">
+            <button class="av-btn on" onclick="pickAv(this,'🦁')">🦁</button>
+            <button class="av-btn" onclick="pickAv(this,'🐻')">🐻</button>
+            <button class="av-btn" onclick="pickAv(this,'🦊')">🦊</button>
+            <button class="av-btn" onclick="pickAv(this,'🐸')">🐸</button>
+            <button class="av-btn" onclick="pickAv(this,'🐧')">🐧</button>
+            <button class="av-btn" onclick="pickAv(this,'🦋')">🦋</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Yaş grubun</label>
+          <div class="age-row">
+            <button class="age-btn on" onclick="pickAge(this,'6-8')">6–8 yaş</button>
+            <button class="age-btn" onclick="pickAge(this,'9-12')">9–12 yaş</button>
+            <button class="age-btn" onclick="pickAge(this,'yetiskin')">Yetişkin</button>
+          </div>
+        </div>
+        <button class="btn-auth" onclick="doRegister()">Hesap Oluştur 🎉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="tb-avatar" id="tb-av" onclick="goScreen('progress')">🦁</div>
+    <div class="tb-info">
+      <div class="tb-name" id="tb-name">—</div>
+      <div class="tb-lvl" id="tb-lvl">Başlangıç</div>
+    </div>
+    <div class="tb-mid">
+      <span class="tb-xp-label">⚡<span id="xp-num">0</span></span>
+      <div class="xpbar-bg"><div class="xpbar-fill" id="xp-bar" style="width:0%"></div></div>
+    </div>
+    <div class="tb-streak">🔥<span id="streak-num">1</span></div>
+    <button class="tb-logout-btn" onclick="confirmLogout()" title="Çıkış Yap">🚪</button>
+  </div>
+
+  <!-- SCROLL AREA (screens inside) -->
+  <div class="scroll-area" id="scroll-area">
+
+    <!-- ====== DASHBOARD ====== -->
+    <div class="screen on" id="sc-dashboard">
+      <div class="hero-dash">
+        <h2 id="hero-greet">Merhaba! 👋</h2>
+        <p>Her gün biraz daha iyi okur yazarsın. Hadi başlayalım!</p>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-v" id="dsh-L">0</div><div class="hstat-l">Harf</div></div>
+          <div class="hstat"><div class="hstat-v" id="dsh-S">0</div><div class="hstat-l">Hece</div></div>
+          <div class="hstat"><div class="hstat-v" id="dsh-C">0</div><div class="hstat-l">Cümle</div></div>
+          <div class="hstat"><div class="hstat-v" id="dsh-X">0</div><div class="hstat-l">XP</div></div>
+        </div>
+      </div>
+      <div class="sec-title">📅 Bugünün Görevleri</div>
+      <div class="task-list" style="margin-bottom:18px;">
+        <div class="task-row" onclick="goScreen('alphabet')"><div class="task-icon" style="background:#FFF0EB;">🔤</div><div class="task-info"><strong>Alfabe — Harf Öğren</strong><span>Sesini duy, çizerek öğren</span></div><span class="xp-chip">+20 XP</span></div>
+        <div class="task-row" onclick="goScreen('syllable')"><div class="task-icon" style="background:#EFF6FF;">🔵</div><div class="task-info"><strong>Hece Oluştur</strong><span>Ünsüz + ünlü = hece!</span></div><span class="xp-chip">+15 XP</span></div>
+        <div class="task-row" onclick="goScreen('reading')"><div class="task-icon" style="background:#ECFDF5;">📖</div><div class="task-info"><strong>Heceli Metin Oku</strong><span>Adım adım, hece hece</span></div><span class="xp-chip">+40 XP</span></div>
+        <div class="task-row" onclick="goScreen('activities')"><div class="task-icon" style="background:#F5F3FF;">🎮</div><div class="task-info"><strong>Etkinlik Yap</strong><span>8 farklı oyun seni bekliyor</span></div><span class="xp-chip">+30 XP</span></div>
+        <div class="task-row" onclick="goScreen('sentences')"><div class="task-icon" style="background:#FFFBEB;">🧩</div><div class="task-info"><strong>Cümle Kur</strong><span>Kelimeleri doğru sırala</span></div><span class="xp-chip">+30 XP</span></div>
+      </div>
+      <div class="sec-title">🚀 Modüller</div>
+      <div class="g3">
+        <div class="act-card" onclick="goScreen('alphabet')"><div class="act-emoji">🔤</div><div class="act-title">Alfabe</div><div class="act-sub">29 Türkçe harf</div></div>
+        <div class="act-card" onclick="goScreen('syllable')"><div class="act-emoji">🔵</div><div class="act-title">Hece</div><div class="act-sub">Harfleri birleştir</div></div>
+        <div class="act-card" onclick="goScreen('reading')"><div class="act-emoji">📖</div><div class="act-title">Okuma</div><div class="act-sub">Heceli metinler</div></div>
+        <div class="act-card" onclick="goScreen('library')"><div class="act-emoji">📚</div><div class="act-title">Kitaplık</div><div class="act-sub">10 hikaye kitabı</div></div>
+        <div class="act-card" onclick="goScreen('activities')"><div class="act-emoji">🎮</div><div class="act-title">Etkinlikler</div><div class="act-sub">8 oyun &amp; alıştırma</div></div>
+        <div class="act-card" onclick="goScreen('quiz')"><div class="act-emoji">🎯</div><div class="act-title">Sınav</div><div class="act-sub">Ne kadar bildim?</div></div>
+      </div>
+    </div>
+
+    <!-- ====== ALPHABET ====== -->
+    <div class="screen" id="sc-alphabet">
+      <div class="ph"><h1>🔤 Türk Alfabesi</h1><p>Bir harfe tıkla — sesini duy, kelimeyi gör, çizerek öğren!</p></div>
+      <div class="tabs">
+        <button class="tab on" onclick="alphaTab(this,'all')">Tümü</button>
+        <button class="tab" onclick="alphaTab(this,'vowels')">🔴 Ünlüler</button>
+        <button class="tab" onclick="alphaTab(this,'consonants')">🔵 Ünsüzler</button>
+        <button class="tab" onclick="alphaTab(this,'learned')">✅ Öğrendim</button>
+      </div>
+      <div class="alpha-grid" id="alpha-grid"></div>
+      <div id="ldet-box"></div>
+    </div>
+
+    <!-- ====== SYLLABLE ====== -->
+    <div class="screen" id="sc-syllable">
+      <div class="ph"><h1>🔵 Hece Öğreniyorum</h1><p>Ünsüz + Ünlü = Hece! Seçerek hece oluştur, sesini duy.</p></div>
+      <div class="tabs">
+        <button class="tab on" onclick="sylTab(this,'build')">🔨 Oluştur</button>
+        <button class="tab" onclick="sylTab(this,'words')">📝 Kelimeler</button>
+        <button class="tab" onclick="sylTab(this,'match')">🎯 Eşleştir</button>
+      </div>
+      <div id="syl-build">
+        <div class="card" style="margin-bottom:13px;">
+          <div class="sec-title">1️⃣ Ünsüz seç</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="cons-row"></div>
+        </div>
+        <div class="card" style="margin-bottom:13px;">
+          <div class="sec-title">2️⃣ Ünlü seç</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="vow-row"></div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="sec-title" style="justify-content:center;">3️⃣ Oluşan Hece</div>
+          <div class="syl-result" id="syl-result">_ + _ = ?</div>
+          <div id="syl-ex" style="font-size:13px;color:var(--ink2);margin-bottom:8px;"></div>
+          <button class="btn btn-orange" onclick="learnSyl()">✅ Öğrendim! +15 XP</button>
+        </div>
+      </div>
+      <div id="syl-words" style="display:none;">
+        <div class="card">
+          <div class="sec-title">📝 Hecelere Ayrılmış Kelimeler</div>
+          <p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Kelimeye tıkla — sesini duy! Her renk bir hecedir.</p>
+          <div id="syl-word-list"></div>
+        </div>
+      </div>
+      <div id="syl-match" style="display:none;">
+        <div class="card">
+          <div class="sec-title">🎯 Heceleri Eşleştir</div>
+          <p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soldaki heceyi seç, sonra sağdaki devamını seç!</p>
+          <div id="syl-match-area"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== READING ====== -->
+    <div class="screen" id="sc-reading">
+      <div class="ph"><h1>📖 Okuma Metinleri</h1><p>Adım adım, hece hece okuyalım! Kelimeye tıkla, sesini duy.</p></div>
+      <div style="background:var(--card2);border-radius:var(--r-sm);padding:11px 14px;margin-bottom:14px;font-size:12px;color:var(--ink2);">
+        💡 Her renk bir hece:
+        <span style="color:#3B82F6;font-weight:800;">■ 1.</span>
+        <span style="color:#FF6B35;font-weight:800;">■ 2.</span>
+        <span style="color:#8B5CF6;font-weight:800;">■ 3.</span>
+        <span style="color:#10B981;font-weight:800;">■ 4.</span> hece rengi
+      </div>
+      <div class="pills" id="read-pills"></div>
+      <div id="read-content"></div>
+    </div>
+
+    <!-- ====== SENTENCES ====== -->
+    <div class="screen" id="sc-sentences">
+      <div class="ph"><h1>🧩 Cümle Kuruyorum</h1><p>Kelimelere tıklayarak doğru sırayla cümle oluştur!</p></div>
+      <div id="sent-area"></div>
+    </div>
+
+    <!-- ====== ACTIVITIES ====== -->
+    <div class="screen" id="sc-activities">
+      <div class="ph"><h1>🎮 Etkinlikler</h1><p>Eğlenerek öğren — 8 farklı etkinlik seni bekliyor!</p></div>
+      <div id="act-list-view">
+        <div class="g3" id="act-grid"></div>
+      </div>
+      <div id="act-game-view" style="display:none;"></div>
+    </div>
+
+    <!-- ====== LIBRARY ====== -->
+    <div class="screen" id="sc-library">
+      <div class="ph"><h1>📚 Kitaplık</h1><p>10 farklı hikaye — her biri 10 sayfalık. Oku, dinle, öğren!</p></div>
+      <div id="lib-shelf-view">
+        <div id="lib-grid"></div>
+      </div>
+      <div id="lib-reader-view" style="display:none;"></div>
+    </div>
+
+    <!-- ====== QUIZ ====== -->
+    <div class="screen" id="sc-quiz">
+      <div class="ph"><h1>🎯 Sınav Zamanı</h1><p>Ne kadar öğrendiğini göster!</p></div>
+      <div id="quiz-area"></div>
+    </div>
+
+    <!-- ====== PROGRESS ====== -->
+    <div class="screen" id="sc-progress">
+      <div class="ph"><h1>📈 Gelişimim</h1><p>Ne kadar ilerlediğini gör!</p></div>
+      <div id="prog-area"></div>
+    </div>
+
+  </div><!-- /scroll-area -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottomnav">
+    <button class="bnav on" onclick="goScreen('dashboard')"><span class="bi">🏠</span>Ana</button>
+    <button class="bnav" onclick="goScreen('alphabet')"><span class="bi">🔤</span>Alfabe</button>
+    <button class="bnav" onclick="goScreen('library')"><span class="bi">📚</span>Kitaplık</button>
+    <button class="bnav" onclick="goScreen('activities')"><span class="bi">🎮</span>Etkinlik</button>
+    <button class="bnav" onclick="goScreen('progress')"><span class="bi">📈</span>Gelişim</button>
+  </nav>
+</div>
+
+<!-- CONFIRM LOGOUT MODAL -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚪</div>
+    <div class="confirm-title">Çıkış Yapılsın mı?</div>
+    <div class="confirm-msg">İlerlemen kaydedilmeyecek.<br>Çıkmak istediğine emin misin?</div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()">İptal</button>
+      <button class="btn" style="background:var(--red);color:white;" onclick="doLogout()">Evet, Çık</button>
+    </div>
+  </div>
+</div>
+
+<!-- XP POPUP -->
+<div class="xp-overlay" id="xp-overlay" onclick="closePop()">
+  <div class="xp-pop" onclick="event.stopPropagation()">
+    <span class="xp-emoji" id="pop-emoji">⭐</span>
+    <div class="xp-stars" id="pop-stars"></div>
+    <div class="xp-title" id="pop-title">Harika!</div>
+    <div class="xp-msg" id="pop-msg">+20 XP kazandın!</div>
+    <button class="btn btn-orange" onclick="closePop()">Devam Et! →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const LETTERS = [
+  {l:'A',t:'v',ex:[{e:'🍎',w:'Araba',h:'A'},{e:'🌙',w:'Ay',h:'A'},{e:'🐝',w:'Arı',h:'A'},{e:'🦶',w:'Ayak',h:'A'},{e:'🪞',w:'Ayna',h:'A'},{e:'🔥',w:'Ateş',h:'A'}]},
+  {l:'B',t:'c',ex:[{e:'🍯',w:'Bal',h:'B'},{e:'🧸',w:'Bebek',h:'B'},{e:'🐟',w:'Balık',h:'B'},{e:'🌿',w:'Bahçe',h:'B'},{e:'✏️',w:'Boya',h:'B'},{e:'🔪',w:'Bıçak',h:'B'}]},
+  {l:'C',t:'c',ex:[{e:'📱',w:'Cep',h:'C'},{e:'🦁',w:'Canavar',h:'C'},{e:'🍒',w:'Ceviz',h:'C'},{e:'🏃',w:'Cadde',h:'C'}]},
+  {l:'Ç',t:'c',ex:[{e:'🌸',w:'Çiçek',h:'Ç'},{e:'👜',w:'Çanta',h:'Ç'},{e:'🍓',w:'Çilek',h:'Ç'},{e:'🌲',w:'Çam',h:'Ç'},{e:'🥢',w:'Çatal',h:'Ç'},{e:'👦',w:'Çocuk',h:'Ç'}]},
+  {l:'D',t:'c',ex:[{e:'🌊',w:'Deniz',h:'D'},{e:'📓',w:'Defter',h:'D'},{e:'🌳',w:'Dal',h:'D'},{e:'🪷',w:'Doğa',h:'D'},{e:'🏠',w:'Duvar',h:'D'},{e:'🐇',w:'Dağ',h:'D'}]},
+  {l:'E',t:'v',ex:[{e:'🏠',w:'Ev',h:'E'},{e:'✋',w:'El',h:'E'},{e:'🍞',w:'Ekmek',h:'E'},{e:'👗',w:'Elbise',h:'E'},{e:'🌿',w:'Ekin',h:'E'},{e:'🐘',w:'Erkek',h:'E'}]},
+  {l:'F',t:'c',ex:[{e:'🐘',w:'Fil',h:'F'},{e:'💡',w:'Fikir',h:'F'},{e:'🥜',w:'Fıstık',h:'F'},{e:'🌊',w:'Fener',h:'F'},{e:'🍵',w:'Fincan',h:'F'}]},
+  {l:'G',t:'c',ex:[{e:'🌹',w:'Gül',h:'G'},{e:'☀️',w:'Güneş',h:'G'},{e:'🚢',w:'Gemi',h:'G'},{e:'🌃',w:'Gece',h:'G'},{e:'👗',w:'Gömlek',h:'G'},{e:'🦌',w:'Geyik',h:'G'}]},
+  {l:'Ğ',t:'c',ex:[{e:'🏔️',w:'Dağ',h:'Ğ'},{e:'🌲',w:'Ağaç',h:'Ğ'},{e:'🍞',w:'Eğri',h:'Ğ'},{e:'🌧️',w:'Yağmur',h:'Ğ'}]},
+  {l:'H',t:'c',ex:[{e:'🏥',w:'Hastane',h:'H'},{e:'🌬️',w:'Hava',h:'H'},{e:'📖',w:'Hikaye',h:'H'},{e:'🍫',w:'Helva',h:'H'},{e:'✈️',w:'Havaalanı',h:'H'},{e:'🎁',w:'Hediye',h:'H'}]},
+  {l:'I',t:'v',ex:[{e:'🌟',w:'Işık',h:'I'},{e:'🌡️',w:'Ilık',h:'I'},{e:'🚿',w:'Irmak',h:'I'},{e:'🐍',w:'Yılan',h:'I'}]},
+  {l:'İ',t:'v',ex:[{e:'🧵',w:'İp',h:'İ'},{e:'🐄',w:'İnek',h:'İ'},{e:'🎵',w:'İki',h:'İ'},{e:'🧲',w:'İğne',h:'İ'},{e:'🚢',w:'İstanbul',h:'İ'},{e:'🔑',w:'İpucu',h:'İ'}]},
+  {l:'J',t:'c',ex:[{e:'🍮',w:'Jöle',h:'J'},{e:'🎵',w:'Jandarma',h:'J'},{e:'🌿',w:'Jinekoloji',h:'J'}]},
+  {l:'K',t:'c',ex:[{e:'🐱',w:'Kedi',h:'K'},{e:'✏️',w:'Kalem',h:'K'},{e:'🦋',w:'Kelebek',h:'K'},{e:'🌺',w:'Karanfil',h:'K'},{e:'🐑',w:'Kuzu',h:'K'},{e:'🌕',w:'Kış',h:'K'}]},
+  {l:'L',t:'c',ex:[{e:'🌷',w:'Lale',h:'L'},{e:'🍋',w:'Limon',h:'L'},{e:'⚓',w:'Liman',h:'L'},{e:'🏫',w:'Lise',h:'L'},{e:'🛋️',w:'Lüks',h:'L'},{e:'🌊',w:'Lagün',h:'L'}]},
+  {l:'M',t:'c',ex:[{e:'🎵',w:'Müzik',h:'M'},{e:'🕯️',w:'Mum',h:'M'},{e:'🍊',w:'Meyve',h:'M'},{e:'🏫',w:'Mektep',h:'M'},{e:'🌙',w:'Mevsim',h:'M'},{e:'🍌',w:'Muz',h:'M'}]},
+  {l:'N',t:'c',ex:[{e:'🌿',w:'Nane',h:'N'},{e:'🌸',w:'Nisan',h:'N'},{e:'🎵',w:'Nota',h:'N'},{e:'🏔️',w:'Nehir',h:'N'},{e:'🌙',w:'Noel',h:'N'}]},
+  {l:'O',t:'v',ex:[{e:'🏫',w:'Okul',h:'O'},{e:'🎯',w:'Oyun',h:'O'},{e:'🌊',w:'Okyanus',h:'O'},{e:'🏹',w:'Ok',h:'O'},{e:'🍑',w:'Orman',h:'O'},{e:'🦆',w:'Ördek',h:'O'}]},
+  {l:'Ö',t:'v',ex:[{e:'🕊️',w:'Ördek',h:'Ö'},{e:'✏️',w:'Öğretmen',h:'Ö'},{e:'🌹',w:'Öpücük',h:'Ö'},{e:'😢',w:'Öfke',h:'Ö'},{e:'🧣',w:'Örgü',h:'Ö'}]},
+  {l:'P',t:'c',ex:[{e:'🧀',w:'Peynir',h:'P'},{e:'🥔',w:'Patates',h:'P'},{e:'🪟',w:'Pencere',h:'P'},{e:'🌺',w:'Papatya',h:'P'},{e:'🐾',w:'Pençe',h:'P'},{e:'🍕',w:'Pizza',h:'P'}]},
+  {l:'R',t:'c',ex:[{e:'🌈',w:'Renk',h:'R'},{e:'🎨',w:'Resim',h:'R'},{e:'💨',w:'Rüzgar',h:'R'},{e:'🏙️',w:'Reklam',h:'R'},{e:'🎭',w:'Roman',h:'R'}]},
+  {l:'S',t:'c',ex:[{e:'💧',w:'Su',h:'S'},{e:'⭐',w:'Sevgi',h:'S'},{e:'🌙',w:'Sabah',h:'S'},{e:'🥛',w:'Süt',h:'S'},{e:'🎻',w:'Saz',h:'S'},{e:'🐍',w:'Sürüngen',h:'S'}]},
+  {l:'Ş',t:'c',ex:[{e:'🌂',w:'Şemsiye',h:'Ş'},{e:'🍬',w:'Şeker',h:'Ş'},{e:'🏙️',w:'Şehir',h:'Ş'},{e:'🎁',w:'Şapka',h:'Ş'},{e:'🌿',w:'Şimşek',h:'Ş'},{e:'🫀',w:'Şarkı',h:'Ş'}]},
+  {l:'T',t:'c',ex:[{e:'⚽',w:'Top',h:'T'},{e:'🚂',w:'Tren',h:'T'},{e:'🍅',w:'Domates',h:'T'},{e:'🐢',w:'Taşbaşa',h:'T'},{e:'🌿',w:'Tarla',h:'T'},{e:'📱',w:'Telefon',h:'T'}]},
+  {l:'U',t:'v',ex:[{e:'✈️',w:'Uçak',h:'U'},{e:'💤',w:'Uyku',h:'U'},{e:'🌍',w:'Uzak',h:'U'},{e:'🍇',w:'Üzüm',h:'U'},{e:'🌊',w:'Umman',h:'U'},{e:'🎯',w:'Uğur',h:'U'}]},
+  {l:'Ü',t:'v',ex:[{e:'🍇',w:'Üzüm',h:'Ü'},{e:'😢',w:'Üzgün',h:'Ü'},{e:'🔼',w:'Üst',h:'Ü'},{e:'🎓',w:'Üniversite',h:'Ü'},{e:'🌬️',w:'Üflemek',h:'Ü'}]},
+  {l:'V',t:'c',ex:[{e:'🏠',w:'Vatan',h:'V'},{e:'🌹',w:'Var',h:'V'},{e:'🏐',w:'Voleybol',h:'V'},{e:'🥛',w:'Vanilya',h:'V'},{e:'🌿',w:'Vadi',h:'V'}]},
+  {l:'Y',t:'c',ex:[{e:'🌧️',w:'Yağmur',h:'Y'},{e:'⭐',w:'Yıldız',h:'Y'},{e:'🍏',w:'Yemiş',h:'Y'},{e:'🌿',w:'Yaprak',h:'Y'},{e:'🐍',w:'Yılan',h:'Y'},{e:'🏠',w:'Yurt',h:'Y'}]},
+  {l:'Z',t:'c',ex:[{e:'🔔',w:'Zil',h:'Z'},{e:'⏰',w:'Zaman',h:'Z'},{e:'🧠',w:'Zeka',h:'Z'},{e:'🌿',w:'Zeytun',h:'Z'},{e:'🏹',w:'Zıpkın',h:'Z'}]},
+];
+
+// ============================================================
+// LETTER READING TEXTS
+// Her harf için özel heceli okuma metinleri
+// s = hece parçaları, c = renk index (1-4)
+// ============================================================
+const LETTER_TEXTS = {
+  'A': [
+    { title:'Arı ve Ayı', plain:"Arı arıyor. Ayı bakıyor. Arı bal yapıyor. Ayı bal yiyor.",
+      lines:[
+        [{w:'A-rı',s:['A','rı'],c:[1,2]},{w:'a-rı-yor.',s:['a','rı','yor'],c:[1,2,1]}],
+        [{w:'A-yı',s:['A','yı'],c:[2,1]},{w:'ba-kı-yor.',s:['ba','kı','yor'],c:[2,1,2]}],
+        [{w:'A-rı',s:['A','rı'],c:[1,2]},{w:'bal',s:['bal'],c:[1]},{w:'ya-pı-yor.',s:['ya','pı','yor'],c:[2,1,2]}],
+        [{w:'A-yı',s:['A','yı'],c:[2,1]},{w:'bal',s:['bal'],c:[1]},{w:'yi-yor.',s:['yi','yor'],c:[2,1]}]
+      ]},
+    { title:'Ali ve Araba', plain:'Ali arabaya baktı. Araba kırmızıydı. Ali arabaya bindi. Araba yavaş gitti.',
+      lines:[
+        [{w:'A-li',s:['A','li'],c:[1,2]},{w:'a-ra-ba-ya',s:['a','ra','ba','ya'],c:[1,2,1,2]},{w:'bak-tı.',s:['bak','tı'],c:[1,2]}],
+        [{w:'A-ra-ba',s:['A','ra','ba'],c:[1,2,1]},{w:'kır-mı-zıy-dı.',s:['kır','mı','zıy','dı'],c:[2,1,2,1]}],
+        [{w:'A-li',s:['A','li'],c:[1,2]},{w:'a-ra-ba-ya',s:['a','ra','ba','ya'],c:[1,2,1,2]},{w:'bin-di.',s:['bin','di'],c:[1,2]}],
+        [{w:'A-ra-ba',s:['A','ra','ba'],c:[1,2,1]},{w:'ya-vaş',s:['ya','vaş'],c:[2,1]},{w:'git-ti.',s:['git','ti'],c:[2,1]}]
+      ]},
+    { title:'Ay Işığı', plain:'Ay doğdu. Işık geldi. Ay parlıyor. Ay güzel.',
+      lines:[
+        [{w:'Ay',s:['Ay'],c:[1]},{w:'doğ-du.',s:['doğ','du'],c:[2,1]}],
+        [{w:'I-şık',s:['I','şık'],c:[1,2]},{w:'gel-di.',s:['gel','di'],c:[1,2]}],
+        [{w:'Ay',s:['Ay'],c:[2]},{w:'par-lı-yor.',s:['par','lı','yor'],c:[1,2,1]}],
+        [{w:'Ay',s:['Ay'],c:[1]},{w:'gü-zel.',s:['gü','zel'],c:[2,1]}]
+      ]}
+  ],
+  'B': [
+    { title:'Bal ve Baba', plain:'Baba bal aldı. Bal tatlıydı. Baba eve geldi. Bal bitti.',
+      lines:[
+        [{w:'Ba-ba',s:['Ba','ba'],c:[1,2]},{w:'bal',s:['bal'],c:[1]},{w:'al-dı.',s:['al','dı'],c:[2,1]}],
+        [{w:'Bal',s:['Bal'],c:[1]},{w:'tat-lıy-dı.',s:['tat','lıy','dı'],c:[2,1,2]}],
+        [{w:'Ba-ba',s:['Ba','ba'],c:[1,2]},{w:'e-ve',s:['e','ve'],c:[1,2]},{w:'gel-di.',s:['gel','di'],c:[1,2]}],
+        [{w:'Bal',s:['Bal'],c:[2]},{w:'bit-ti.',s:['bit','ti'],c:[1,2]}]
+      ]},
+    { title:'Bebek Uyuyor', plain:'Bebek uyuyor. Bebek küçük. Bebek güzel. Bebek mutlu.',
+      lines:[
+        [{w:'Be-bek',s:['Be','bek'],c:[1,2]},{w:'u-yu-yor.',s:['u','yu','yor'],c:[1,2,1]}],
+        [{w:'Be-bek',s:['Be','bek'],c:[2,1]},{w:'kü-çük.',s:['kü','çük'],c:[2,1]}],
+        [{w:'Be-bek',s:['Be','bek'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Be-bek',s:['Be','bek'],c:[2,1]},{w:'mut-lu.',s:['mut','lu'],c:[2,1]}]
+      ]},
+    { title:'Balık ve Bulut', plain:'Balık suda yüzüyor. Bulut gökte uçuyor. Balık baktı. Bulut geçti.',
+      lines:[
+        [{w:'Ba-lık',s:['Ba','lık'],c:[1,2]},{w:'su-da',s:['su','da'],c:[1,2]},{w:'yü-zü-yor.',s:['yü','zü','yor'],c:[1,2,1]}],
+        [{w:'Bu-lut',s:['Bu','lut'],c:[2,1]},{w:'gök-te',s:['gök','te'],c:[2,1]},{w:'u-çu-yor.',s:['u','çu','yor'],c:[2,1,2]}],
+        [{w:'Ba-lık',s:['Ba','lık'],c:[1,2]},{w:'bak-tı.',s:['bak','tı'],c:[1,2]}],
+        [{w:'Bu-lut',s:['Bu','lut'],c:[2,1]},{w:'geç-ti.',s:['geç','ti'],c:[2,1]}]
+      ]}
+  ],
+  'C': [
+    { title:'Cadde ve Cep', plain:'Cadde uzun. Cep küçük. Caddede yürüdüm. Cepte para var.',
+      lines:[
+        [{w:'Cad-de',s:['Cad','de'],c:[1,2]},{w:'u-zun.',s:['u','zun'],c:[1,2]}],
+        [{w:'Cep',s:['Cep'],c:[2]},{w:'kü-çük.',s:['kü','çük'],c:[1,2]}],
+        [{w:'Cad-de-de',s:['Cad','de','de'],c:[1,2,1]},{w:'yü-rü-düm.',s:['yü','rü','düm'],c:[2,1,2]}],
+        [{w:'Cep-te',s:['Cep','te'],c:[2,1]},{w:'pa-ra',s:['pa','ra'],c:[2,1]},{w:'var.',s:['var'],c:[2]}]
+      ]},
+    { title:'Canavar Yok', plain:'Canavar yok. Cam var. Cama baktım. Bir şey göremedim.',
+      lines:[
+        [{w:'Ca-na-var',s:['Ca','na','var'],c:[1,2,1]},{w:'yok.',s:['yok'],c:[2]}],
+        [{w:'Cam',s:['Cam'],c:[1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Ca-ma',s:['Ca','ma'],c:[1,2]},{w:'bak-tım.',s:['bak','tım'],c:[1,2]}],
+        [{w:'Bir',s:['Bir'],c:[1]},{w:'şey',s:['şey'],c:[2]},{w:'gö-re-me-dim.',s:['gö','re','me','dim'],c:[1,2,1,2]}]
+      ]}
+  ],
+  'Ç': [
+    { title:'Çiçek ve Çocuk', plain:'Çocuk çiçeğe baktı. Çiçek güzeldi. Çocuk güldü. Çiçek sallandı.',
+      lines:[
+        [{w:'Ço-cuk',s:['Ço','cuk'],c:[1,2]},{w:'çi-çe-ğe',s:['çi','çe','ğe'],c:[1,2,1]},{w:'bak-tı.',s:['bak','tı'],c:[2,1]}],
+        [{w:'Çi-çek',s:['Çi','çek'],c:[1,2]},{w:'gü-zel-di.',s:['gü','zel','di'],c:[1,2,1]}],
+        [{w:'Ço-cuk',s:['Ço','cuk'],c:[1,2]},{w:'gül-dü.',s:['gül','dü'],c:[2,1]}],
+        [{w:'Çi-çek',s:['Çi','çek'],c:[1,2]},{w:'sal-lan-dı.',s:['sal','lan','dı'],c:[1,2,1]}]
+      ]},
+    { title:'Çanta ve Çatal', plain:'Çanta büyük. Çatal küçük. Çantada ekmek var. Çatalla yedim.',
+      lines:[
+        [{w:'Çan-ta',s:['Çan','ta'],c:[1,2]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+        [{w:'Ça-tal',s:['Ça','tal'],c:[1,2]},{w:'kü-çük.',s:['kü','çük'],c:[1,2]}],
+        [{w:'Çan-ta-da',s:['Çan','ta','da'],c:[1,2,1]},{w:'ek-mek',s:['ek','mek'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Ça-tal-la',s:['Ça','tal','la'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}]
+      ]}
+  ],
+  'D': [
+    { title:'Deniz ve Dal', plain:'Deniz mavi. Dal yeşil. Denizde balık var. Dalda kuş var.',
+      lines:[
+        [{w:'De-niz',s:['De','niz'],c:[1,2]},{w:'ma-vi.',s:['ma','vi'],c:[1,2]}],
+        [{w:'Dal',s:['Dal'],c:[2]},{w:'ye-şil.',s:['ye','şil'],c:[1,2]}],
+        [{w:'De-niz-de',s:['De','niz','de'],c:[1,2,1]},{w:'ba-lık',s:['ba','lık'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Dal-da',s:['Dal','da'],c:[1,2]},{w:'kuş',s:['kuş'],c:[1]},{w:'var.',s:['var'],c:[2]}]
+      ]},
+    { title:'Defter ve Dolap', plain:'Defter masada. Dolap köşede. Deftere yazdım. Dolapta kıyafet var.',
+      lines:[
+        [{w:'Def-ter',s:['Def','ter'],c:[1,2]},{w:'ma-sa-da.',s:['ma','sa','da'],c:[1,2,1]}],
+        [{w:'Do-lap',s:['Do','lap'],c:[1,2]},{w:'kö-şe-de.',s:['kö','şe','de'],c:[1,2,1]}],
+        [{w:'Def-te-re',s:['Def','te','re'],c:[1,2,1]},{w:'yaz-dım.',s:['yaz','dım'],c:[2,1]}],
+        [{w:'Do-lap-ta',s:['Do','lap','ta'],c:[1,2,1]},{w:'kı-ya-fet',s:['kı','ya','fet'],c:[2,1,2]},{w:'var.',s:['var'],c:[1]}]
+      ]}
+  ],
+  'E': [
+    { title:'Ev ve El', plain:'Evim var. Elim var. Evim büyük. Elim temiz.',
+      lines:[
+        [{w:'E-vim',s:['E','vim'],c:[1,2]},{w:'var.',s:['var'],c:[1]}],
+        [{w:'E-lim',s:['E','lim'],c:[1,2]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'E-vim',s:['E','vim'],c:[1,2]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+        [{w:'E-lim',s:['E','lim'],c:[1,2]},{w:'te-miz.',s:['te','miz'],c:[1,2]}]
+      ]},
+    { title:'Ekmek ve Elma', plain:'Ekmek taze. Elma kırmızı. Ekmek yedim. Elma yedim.',
+      lines:[
+        [{w:'Ek-mek',s:['Ek','mek'],c:[1,2]},{w:'ta-ze.',s:['ta','ze'],c:[1,2]}],
+        [{w:'El-ma',s:['El','ma'],c:[1,2]},{w:'kır-mı-zı.',s:['kır','mı','zı'],c:[1,2,1]}],
+        [{w:'Ek-me-ği',s:['Ek','me','ği'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}],
+        [{w:'El-ma-yı',s:['El','ma','yı'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}]
+      ]},
+    { title:'Elbise ve Eldiven', plain:'Elbise güzel. Eldiven sıcak. Elbisei giydim. Eldiveni taktım.',
+      lines:[
+        [{w:'El-bi-se',s:['El','bi','se'],c:[1,2,1]},{w:'gü-zel.',s:['gü','zel'],c:[2,1]}],
+        [{w:'El-di-ven',s:['El','di','ven'],c:[1,2,1]},{w:'sı-cak.',s:['sı','cak'],c:[2,1]}],
+        [{w:'El-bi-se-yi',s:['El','bi','se','yi'],c:[1,2,1,2]},{w:'giy-dim.',s:['giy','dim'],c:[1,2]}],
+        [{w:'El-di-ve-ni',s:['El','di','ve','ni'],c:[1,2,1,2]},{w:'tak-tım.',s:['tak','tım'],c:[1,2]}]
+      ]}
+  ],
+  'F': [
+    { title:'Fil ve Fener', plain:'Fil büyük. Fener parlak. Fil yürüdü. Fener yandı.',
+      lines:[
+        [{w:'Fil',s:['Fil'],c:[1]},{w:'bü-yük.',s:['bü','yük'],c:[2,1]}],
+        [{w:'Fe-ner',s:['Fe','ner'],c:[1,2]},{w:'par-lak.',s:['par','lak'],c:[1,2]}],
+        [{w:'Fil',s:['Fil'],c:[2]},{w:'yü-rü-dü.',s:['yü','rü','dü'],c:[1,2,1]}],
+        [{w:'Fe-ner',s:['Fe','ner'],c:[1,2]},{w:'yan-dı.',s:['yan','dı'],c:[1,2]}]
+      ]},
+    { title:'Fıstık ve Fincan', plain:'Fıstık küçük. Fincan sıcak. Fıstık yedim. Fincan içtim.',
+      lines:[
+        [{w:'Fıs-tık',s:['Fıs','tık'],c:[1,2]},{w:'kü-çük.',s:['kü','çük'],c:[1,2]}],
+        [{w:'Fin-can',s:['Fin','can'],c:[1,2]},{w:'sı-cak.',s:['sı','cak'],c:[1,2]}],
+        [{w:'Fıs-tık',s:['Fıs','tık'],c:[1,2]},{w:'ye-dim.',s:['ye','dim'],c:[1,2]}],
+        [{w:'Fin-ca-nı',s:['Fin','ca','nı'],c:[1,2,1]},{w:'iç-tim.',s:['iç','tim'],c:[2,1]}]
+      ]}
+  ],
+  'G': [
+    { title:'Gül ve Güneş', plain:'Gül açtı. Güneş doğdu. Gül kokladım. Güneşe baktım.',
+      lines:[
+        [{w:'Gül',s:['Gül'],c:[1]},{w:'aç-tı.',s:['aç','tı'],c:[2,1]}],
+        [{w:'Gü-neş',s:['Gü','neş'],c:[1,2]},{w:'doğ-du.',s:['doğ','du'],c:[1,2]}],
+        [{w:'Gü-lü',s:['Gü','lü'],c:[1,2]},{w:'kok-la-dım.',s:['kok','la','dım'],c:[1,2,1]}],
+        [{w:'Gü-ne-şe',s:['Gü','ne','şe'],c:[1,2,1]},{w:'bak-tım.',s:['bak','tım'],c:[2,1]}]
+      ]},
+    { title:'Gemi Gidiyor', plain:'Gemi büyük. Gemi gidiyor. Gemide insan var. Gemi uzaklaştı.',
+      lines:[
+        [{w:'Ge-mi',s:['Ge','mi'],c:[1,2]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+        [{w:'Ge-mi',s:['Ge','mi'],c:[2,1]},{w:'gi-di-yor.',s:['gi','di','yor'],c:[2,1,2]}],
+        [{w:'Ge-mi-de',s:['Ge','mi','de'],c:[1,2,1]},{w:'in-san',s:['in','san'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Ge-mi',s:['Ge','mi'],c:[1,2]},{w:'u-zak-laş-tı.',s:['u','zak','laş','tı'],c:[2,1,2,1]}]
+      ]}
+  ],
+  'H': [
+    { title:'Hava ve Hikaye', plain:'Hava güzel. Hikaye ilginç. Havada kuş var. Hikayeyi okudum.',
+      lines:[
+        [{w:'Ha-va',s:['Ha','va'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Hi-ka-ye',s:['Hi','ka','ye'],c:[1,2,1]},{w:'il-ginç.',s:['il','ginç'],c:[2,1]}],
+        [{w:'Ha-va-da',s:['Ha','va','da'],c:[1,2,1]},{w:'kuş',s:['kuş'],c:[2]},{w:'var.',s:['var'],c:[1]}],
+        [{w:'Hi-ka-ye-yi',s:['Hi','ka','ye','yi'],c:[1,2,1,2]},{w:'o-ku-dum.',s:['o','ku','dum'],c:[1,2,1]}]
+      ]},
+    { title:'Hediye Geldi', plain:'Hediye geldi. Hediye büyüktü. Hediyeyi açtım. Çok sevindim.',
+      lines:[
+        [{w:'He-di-ye',s:['He','di','ye'],c:[1,2,1]},{w:'gel-di.',s:['gel','di'],c:[2,1]}],
+        [{w:'He-di-ye',s:['He','di','ye'],c:[1,2,1]},{w:'bü-yük-tü.',s:['bü','yük','tü'],c:[2,1,2]}],
+        [{w:'He-di-ye-yi',s:['He','di','ye','yi'],c:[1,2,1,2]},{w:'aç-tım.',s:['aç','tım'],c:[1,2]}],
+        [{w:'Çok',s:['Çok'],c:[1]},{w:'se-vin-dim.',s:['se','vin','dim'],c:[2,1,2]}]
+      ]}
+  ],
+  'K': [
+    { title:'Kedi ve Kalem', plain:'Kedi uyuyor. Kalem masada. Kedi uyandı. Kalemi aldım.',
+      lines:[
+        [{w:'Ke-di',s:['Ke','di'],c:[1,2]},{w:'u-yu-yor.',s:['u','yu','yor'],c:[1,2,1]}],
+        [{w:'Ka-lem',s:['Ka','lem'],c:[1,2]},{w:'ma-sa-da.',s:['ma','sa','da'],c:[1,2,1]}],
+        [{w:'Ke-di',s:['Ke','di'],c:[1,2]},{w:'u-yan-dı.',s:['u','yan','dı'],c:[1,2,1]}],
+        [{w:'Ka-le-mi',s:['Ka','le','mi'],c:[1,2,1]},{w:'al-dım.',s:['al','dım'],c:[2,1]}]
+      ]},
+    { title:'Kuş ve Kelebek', plain:'Kuş uçuyor. Kelebek uçuyor. Kuş ötüyor. Kelebek kondu.',
+      lines:[
+        [{w:'Kuş',s:['Kuş'],c:[1]},{w:'u-çu-yor.',s:['u','çu','yor'],c:[2,1,2]}],
+        [{w:'Ke-le-bek',s:['Ke','le','bek'],c:[1,2,1]},{w:'u-çu-yor.',s:['u','çu','yor'],c:[2,1,2]}],
+        [{w:'Kuş',s:['Kuş'],c:[1]},{w:'ö-tü-yor.',s:['ö','tü','yor'],c:[2,1,2]}],
+        [{w:'Ke-le-bek',s:['Ke','le','bek'],c:[1,2,1]},{w:'kon-du.',s:['kon','du'],c:[2,1]}]
+      ]},
+    { title:'Kış ve Kar', plain:'Kış geldi. Kar yağdı. Kışın hava soğuk. Kar beyaz.',
+      lines:[
+        [{w:'Kış',s:['Kış'],c:[1]},{w:'gel-di.',s:['gel','di'],c:[2,1]}],
+        [{w:'Kar',s:['Kar'],c:[2]},{w:'yağ-dı.',s:['yağ','dı'],c:[1,2]}],
+        [{w:'Kı-şın',s:['Kı','şın'],c:[1,2]},{w:'ha-va',s:['ha','va'],c:[1,2]},{w:'so-ğuk.',s:['so','ğuk'],c:[1,2]}],
+        [{w:'Kar',s:['Kar'],c:[2]},{w:'be-yaz.',s:['be','yaz'],c:[1,2]}]
+      ]}
+  ],
+  'L': [
+    { title:'Lale ve Limon', plain:'Lale güzel. Limon ekşi. Laleyi kokladım. Limondan içtim.',
+      lines:[
+        [{w:'La-le',s:['La','le'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Li-mon',s:['Li','mon'],c:[1,2]},{w:'ek-şi.',s:['ek','şi'],c:[1,2]}],
+        [{w:'La-le-yi',s:['La','le','yi'],c:[1,2,1]},{w:'kok-la-dım.',s:['kok','la','dım'],c:[2,1,2]}],
+        [{w:'Li-mon-dan',s:['Li','mon','dan'],c:[1,2,1]},{w:'iç-tim.',s:['iç','tim'],c:[2,1]}]
+      ]},
+    { title:'Liman ve Lise', plain:'Liman büyük. Lise yakın. Limanda gemi var. Lisede öğrenci var.',
+      lines:[
+        [{w:'Li-man',s:['Li','man'],c:[1,2]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+        [{w:'Li-se',s:['Li','se'],c:[1,2]},{w:'ya-kın.',s:['ya','kın'],c:[1,2]}],
+        [{w:'Li-man-da',s:['Li','man','da'],c:[1,2,1]},{w:'ge-mi',s:['ge','mi'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Li-se-de',s:['Li','se','de'],c:[1,2,1]},{w:'öğ-ren-ci',s:['öğ','ren','ci'],c:[2,1,2]},{w:'var.',s:['var'],c:[1]}]
+      ]}
+  ],
+  'M': [
+    { title:'Mama ve Mum', plain:'Mama sıcak. Mum parlak. Mama yedim. Mum söndü.',
+      lines:[
+        [{w:'Ma-ma',s:['Ma','ma'],c:[1,2]},{w:'sı-cak.',s:['sı','cak'],c:[1,2]}],
+        [{w:'Mum',s:['Mum'],c:[2]},{w:'par-lak.',s:['par','lak'],c:[1,2]}],
+        [{w:'Ma-ma-yı',s:['Ma','ma','yı'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}],
+        [{w:'Mum',s:['Mum'],c:[2]},{w:'sön-dü.',s:['sön','dü'],c:[1,2]}]
+      ]},
+    { title:'Masa ve Meyve', plain:'Masa ahşap. Meyve taze. Masada tabak var. Meyve yedim.',
+      lines:[
+        [{w:'Ma-sa',s:['Ma','sa'],c:[1,2]},{w:'ah-şap.',s:['ah','şap'],c:[1,2]}],
+        [{w:'Mey-ve',s:['Mey','ve'],c:[1,2]},{w:'ta-ze.',s:['ta','ze'],c:[1,2]}],
+        [{w:'Ma-sa-da',s:['Ma','sa','da'],c:[1,2,1]},{w:'ta-bak',s:['ta','bak'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Mey-ve-yi',s:['Mey','ve','yi'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}]
+      ]},
+    { title:'Müzik ve Muz', plain:'Müzik güzel. Muz sarı. Müzik dinledim. Muz yedim.',
+      lines:[
+        [{w:'Mü-zik',s:['Mü','zik'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Muz',s:['Muz'],c:[2]},{w:'sa-rı.',s:['sa','rı'],c:[1,2]}],
+        [{w:'Mü-zi-ği',s:['Mü','zi','ği'],c:[1,2,1]},{w:'din-le-dim.',s:['din','le','dim'],c:[2,1,2]}],
+        [{w:'Mu-zu',s:['Mu','zu'],c:[1,2]},{w:'ye-dim.',s:['ye','dim'],c:[1,2]}]
+      ]}
+  ],
+  'N': [
+    { title:'Nane ve Nota', plain:'Nane yeşil. Nota müzikte. Nane kokladım. Nota okudum.',
+      lines:[
+        [{w:'Na-ne',s:['Na','ne'],c:[1,2]},{w:'ye-şil.',s:['ye','şil'],c:[1,2]}],
+        [{w:'No-ta',s:['No','ta'],c:[1,2]},{w:'mü-zik-te.',s:['mü','zik','te'],c:[1,2,1]}],
+        [{w:'Na-ne-yi',s:['Na','ne','yi'],c:[1,2,1]},{w:'kok-la-dım.',s:['kok','la','dım'],c:[2,1,2]}],
+        [{w:'No-ta-yı',s:['No','ta','yı'],c:[1,2,1]},{w:'o-ku-dum.',s:['o','ku','dum'],c:[2,1,2]}]
+      ]},
+    { title:'Nehir ve Nisan', plain:'Nehir uzun. Nisan güzel. Nehirde balık var. Nisanda çiçek açar.',
+      lines:[
+        [{w:'Ne-hir',s:['Ne','hir'],c:[1,2]},{w:'u-zun.',s:['u','zun'],c:[1,2]}],
+        [{w:'Ni-san',s:['Ni','san'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Ne-hir-de',s:['Ne','hir','de'],c:[1,2,1]},{w:'ba-lık',s:['ba','lık'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Ni-san-da',s:['Ni','san','da'],c:[1,2,1]},{w:'çi-çek',s:['çi','çek'],c:[2,1]},{w:'a-çar.',s:['a','çar'],c:[2,1]}]
+      ]}
+  ],
+  'S': [
+    { title:'Su ve Sevgi', plain:'Su içtim. Sevgi güzel. Su temiz. Sevgi sıcak.',
+      lines:[
+        [{w:'Su',s:['Su'],c:[1]},{w:'iç-tim.',s:['iç','tim'],c:[2,1]}],
+        [{w:'Sev-gi',s:['Sev','gi'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Su',s:['Su'],c:[2]},{w:'te-miz.',s:['te','miz'],c:[1,2]}],
+        [{w:'Sev-gi',s:['Sev','gi'],c:[1,2]},{w:'sı-cak.',s:['sı','cak'],c:[1,2]}]
+      ]},
+    { title:'Sabah ve Süt', plain:'Sabah oldu. Süt içtim. Sabah güzel. Süt sıcaktı.',
+      lines:[
+        [{w:'Sa-bah',s:['Sa','bah'],c:[1,2]},{w:'ol-du.',s:['ol','du'],c:[1,2]}],
+        [{w:'Süt',s:['Süt'],c:[2]},{w:'iç-tim.',s:['iç','tim'],c:[1,2]}],
+        [{w:'Sa-bah',s:['Sa','bah'],c:[1,2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+        [{w:'Süt',s:['Süt'],c:[2]},{w:'sı-cak-tı.',s:['sı','cak','tı'],c:[1,2,1]}]
+      ]},
+    { title:'Saat ve Sepet', plain:'Saat çalıştı. Sepet doldu. Saate baktım. Sepeti taşıdım.',
+      lines:[
+        [{w:'Sa-at',s:['Sa','at'],c:[1,2]},{w:'ça-lış-tı.',s:['ça','lış','tı'],c:[1,2,1]}],
+        [{w:'Se-pet',s:['Se','pet'],c:[1,2]},{w:'dol-du.',s:['dol','du'],c:[1,2]}],
+        [{w:'Sa-a-te',s:['Sa','a','te'],c:[1,2,1]},{w:'bak-tım.',s:['bak','tım'],c:[2,1]}],
+        [{w:'Se-pe-ti',s:['Se','pe','ti'],c:[1,2,1]},{w:'ta-şı-dım.',s:['ta','şı','dım'],c:[2,1,2]}]
+      ]}
+  ],
+  'T': [
+    { title:'Top ve Tren', plain:'Top yuvarlandı. Tren geçti. Topu aldım. Trene bindim.',
+      lines:[
+        [{w:'Top',s:['Top'],c:[1]},{w:'yu-var-lan-dı.',s:['yu','var','lan','dı'],c:[2,1,2,1]}],
+        [{w:'Tren',s:['Tren'],c:[2]},{w:'geç-ti.',s:['geç','ti'],c:[1,2]}],
+        [{w:'To-pu',s:['To','pu'],c:[1,2]},{w:'al-dım.',s:['al','dım'],c:[1,2]}],
+        [{w:'Tre-ne',s:['Tre','ne'],c:[1,2]},{w:'bin-dim.',s:['bin','dim'],c:[1,2]}]
+      ]},
+    { title:'Tarla ve Telefon', plain:'Tarla geniş. Telefon yeni. Tarlada çiçek var. Telefon çaldı.',
+      lines:[
+        [{w:'Tar-la',s:['Tar','la'],c:[1,2]},{w:'ge-niş.',s:['ge','niş'],c:[1,2]}],
+        [{w:'Te-le-fon',s:['Te','le','fon'],c:[1,2,1]},{w:'ye-ni.',s:['ye','ni'],c:[2,1]}],
+        [{w:'Tar-la-da',s:['Tar','la','da'],c:[1,2,1]},{w:'çi-çek',s:['çi','çek'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+        [{w:'Te-le-fon',s:['Te','le','fon'],c:[1,2,1]},{w:'çal-dı.',s:['çal','dı'],c:[2,1]}]
+      ]}
+  ],
+  'Y': [
+    { title:'Yağmur ve Yıldız', plain:'Yağmur yağdı. Yıldız aktı. Yağmurda ıslandım. Yıldıza baktım.',
+      lines:[
+        [{w:'Yağ-mur',s:['Yağ','mur'],c:[1,2]},{w:'yağ-dı.',s:['yağ','dı'],c:[1,2]}],
+        [{w:'Yıl-dız',s:['Yıl','dız'],c:[1,2]},{w:'ak-tı.',s:['ak','tı'],c:[1,2]}],
+        [{w:'Yağ-mur-da',s:['Yağ','mur','da'],c:[1,2,1]},{w:'ıs-lan-dım.',s:['ıs','lan','dım'],c:[2,1,2]}],
+        [{w:'Yıl-dı-za',s:['Yıl','dı','za'],c:[1,2,1]},{w:'bak-tım.',s:['bak','tım'],c:[2,1]}]
+      ]},
+    { title:'Yaprak ve Yurt', plain:'Yaprak düştü. Yurt büyük. Yaprağı aldım. Yurtta yaşıyorum.',
+      lines:[
+        [{w:'Yap-rak',s:['Yap','rak'],c:[1,2]},{w:'düş-tü.',s:['düş','tü'],c:[1,2]}],
+        [{w:'Yurt',s:['Yurt'],c:[2]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+        [{w:'Yap-ra-ğı',s:['Yap','ra','ğı'],c:[1,2,1]},{w:'al-dım.',s:['al','dım'],c:[2,1]}],
+        [{w:'Yurt-ta',s:['Yurt','ta'],c:[1,2]},{w:'ya-şı-yo-rum.',s:['ya','şı','yo','rum'],c:[1,2,1,2]}]
+      ]}
+  ],
+  'Z': [
+    { title:'Zil ve Zaman', plain:'Zil çaldı. Zaman geçti. Zile koştum. Zamanı kullandım.',
+      lines:[
+        [{w:'Zil',s:['Zil'],c:[1]},{w:'çal-dı.',s:['çal','dı'],c:[2,1]}],
+        [{w:'Za-man',s:['Za','man'],c:[1,2]},{w:'geç-ti.',s:['geç','ti'],c:[1,2]}],
+        [{w:'Zi-le',s:['Zi','le'],c:[1,2]},{w:'koş-tum.',s:['koş','tum'],c:[1,2]}],
+        [{w:'Za-ma-nı',s:['Za','ma','nı'],c:[1,2,1]},{w:'kul-lan-dım.',s:['kul','lan','dım'],c:[2,1,2]}]
+      ]},
+    { title:'Zeka ve Zeytun', plain:'Zeka önemli. Zeytun lezzetli. Zekamı kullandım. Zeytun yedim.',
+      lines:[
+        [{w:'Ze-ka',s:['Ze','ka'],c:[1,2]},{w:'ö-nem-li.',s:['ö','nem','li'],c:[1,2,1]}],
+        [{w:'Zey-tun',s:['Zey','tun'],c:[1,2]},{w:'lez-zet-li.',s:['lez','zet','li'],c:[1,2,1]}],
+        [{w:'Ze-ka-mı',s:['Ze','ka','mı'],c:[1,2,1]},{w:'kul-lan-dım.',s:['kul','lan','dım'],c:[2,1,2]}],
+        [{w:'Zey-tu-nu',s:['Zey','tu','nu'],c:[1,2,1]},{w:'ye-dim.',s:['ye','dim'],c:[2,1]}]
+      ]}
+  ],
+};
+
+
+// ============================================================
+// LIBRARY — 10 HİKAYE × 10 SAYFA
+// ============================================================
+const BOOKS = [
+  {
+    id:1, title:"Minoş'un Macerası", emoji:'🐱', color:'#FF6B35', bg:'#FFF0EB',
+    level:'A1 — Başlangıç', pages:[
+      {img:'🐱', text:'Mi-noş kü-çük bir ke-di-dir. Bah-çe-de ya-şar. Her gün güneş-te u-yu-r.'},
+      {img:'🌳', text:'Bir gün Minoş a-ğa-ca çık-tı. Yük-sek-te otur-du. Her şe-yi gör-dü.'},
+      {img:'🐦', text:'A-ğaç-ta bir kuş var-dı. Kuş öt-tü. Mi-noş ku-şa bak-tı.'},
+      {img:'🦋', text:'Bir ke-le-bek uç-tu. Mi-noş onu yak-la-mak is-te-di. Ko-şa-maz-dı.'},
+      {img:'🌺', text:'Bah-çe-de çi-çek-ler var-dı. Mi-noş çi-çek-le-ri kok-la-dı. Gü-zel ko-ku-yor-du.'},
+      {img:'🐭', text:'Bir fare gör-dü Mi-noş. Fa-re kaç-tı. Mi-noş pe-şin-den koş-tu.'},
+      {img:'🏠', text:'Ak-şam ol-du. Mi-noş e-ve dönd-dü. An-ne-si onu bek-li-yor-du.'},
+      {img:'🥛', text:"An-ne Mi-noş'a süt ver-di. Mi-noş sü-tü iç-ti. Çok mut-lu ol-du."},
+      {img:'🛏️', text:'Mi-noş yor-gun-du. Yu-mu-şak ya-ta-ğı-na yat-tı. Göz-le-ri-ni kap-at-tı.'},
+      {img:'⭐', text:'Mi-noş rü-ya gör-dü. Rü-ya-sın-da uç-tu. Ne gü-zel bir gün-dü!'},
+    ]
+  },
+  {
+    id:2, title:'Küçük Tohumun Yolculuğu', emoji:'🌱', color:'#10B981', bg:'#ECFDF5',
+    level:'A1 — Başlangıç', pages:[
+      {img:'🌱', text:'Kü-çük bir to-hum var-dı. Top-ra-ğın i-çin-de yat-tı. Uyu-yor-du.'},
+      {img:'☔', text:'Yağ-mur yağ-dı. Top-rak ıs-lan-dı. To-hum su iç-ti. Se-vin-di.'},
+      {img:'☀️', text:'Gü-neş doğ-du. I-şık gel-di. To-hum ı-sın-dı. U-yan-ma-ya baş-la-dı.'},
+      {img:'🌿', text:'To-hum-dan kü-çük bir fil-iz çık-tı. Ye-şil-di. Na-rin-di. Gü-zel-di.'},
+      {img:'🐛', text:'Bir kurt-çuk gel-di. Fi-li-ze bak-tı. Fi-liz kork-tu. Ama kourt-çuk geç-ti.'},
+      {img:'🌸', text:'Fil-iz bü-yü-dü. Dal-lar çık-tı. Son-ra çi-çek-ler aç-tı. Mor-du.'},
+      {img:'🦋', text:'Ke-le-bek-ler gel-di. Çi-çek-le-re kon-du. Ne gü-zel bir tab-lo!'},
+      {img:'🍎', text:'Yaz gel-di. Çi-çek-ler döküldü. Ye-ri-ne mey-ve-ler çık-tı. Kır-mı-zıy-dı.'},
+      {img:'👦', text:'Bir ço-cuk gel-di. Mey-ve-yi top-la-dı. I-sır-dı. Tat-lıy-dı. Gül-dü.'},
+      {img:'🌳', text:'Kü-çük to-hum ar-tık bü-yük bir a-ğaç-tı. Yıl-lar-ca ya-şa-ya-cak-tı.'},
+    ]
+  },
+  {
+    id:3, title:'Ali ile Balon', emoji:'🎈', color:'#3B82F6', bg:'#EFF6FF',
+    level:'A1 — Başlangıç', pages:[
+      {img:'👦', text:'A-li kü-çük bir ço-cuk-tu. Pa-zar-te-si gü-nü do-ğu-mu-nu kut-la-dı.'},
+      {img:'🎈', text:'Ba-ba-sı o-na kır-mı-zı bir ba-lon al-dı. A-li çok se-vin-di.'},
+      {img:'🌳', text:'A-li ba-lo-nu-nu bah-çe-ye gö-tür-dü. Rüz-gar es-ti. Ba-lon sal-lan-dı.'},
+      {img:'💨', text:'Güç-lü bir rüz-gar gel-di. İp el-den kaç-tı. Ba-lon ha-va-ya uç-tu!'},
+      {img:'😢', text:'A-li ba-lo-nu-na bak-tı. Ba-lon u-za-ğa git-ti. A-li a-ğla-dı.'},
+      {img:'👩', text:'An-ne-si gel-di. A-li-yi sart-tı. "Ağ-la-ma" de-di. "Bir ba-lon da-ha a-la-lım."'},
+      {img:'🏪', text:'An-ne-si-yle ma-ğa-za-ya git-ti-ler. Bu kez ma-vi bir ba-lon seç-ti.'},
+      {img:'🎈', text:'A-li ba-lo-nu sı-kı-ca tut-tu. Hiç bı-rak-ma-dı. Koş-ma-dı bi-le.'},
+      {img:'🏠', text:'Ak-şam e-ve dön-dü-ler. Ba-lon o-da-sın-da uç-tu. A-li mut-lu-ca uyu-du.'},
+      {img:'⭐', text:'O gün A-li bir şey öğ-ren-di: Sev-di-ği-ni sı-kı-ca tut-mak ge-re-kir.'},
+    ]
+  },
+  {
+    id:4, title:'Denizde Bir Gün', emoji:'🐠', color:'#06B6D4', bg:'#ECFEFF',
+    level:'A2 — Temel', pages:[
+      {img:'🏖️', text:'Ya-z gel-di. A-i-le de-ni-ze git-ti. Ku-ma-sal güneş-li-ydi. Ha-va sı-cak-tı.'},
+      {img:'🌊', text:'De-niz ma-vi ve du-ruy-du. Dal-ga-lar sa-hi-le vu-ru-yor-du. Se-si gü-zel-di.'},
+      {img:'🏊', text:'E-la su-ya gir-di. Su se-rin-di. Yüz-me-ye baş-la-dı. Çok eğ-len-di.'},
+      {img:'🐚', text:'Ku-mun a-ra-sın-da de-niz ka-bu-ğu bul-du. Be-yaz ve pem-be-ydi. Al-dı.'},
+      {img:'🐠', text:'Su al-tın-da ba-lık-lar gör-dü. Tu-run-cu ve sa-rıy-dı-lar. Gü-zel-di.'},
+      {img:'🦀', text:'Bir yengeç ku-mun ü-ze-rin-de yü-rü-yor-du. Yan yan gi-di-yor-du. Gül-dü E-la.'},
+      {img:'🍦', text:'Öğ-le-den son-ra don-dur-ma yi-di-ler. Çi-ko-la-ta-lıy-dı. E-rir ken ye-di-ler.'},
+      {img:'🌅', text:'Gü-neş bat-ma-ya baş-la-dı. Gök yü-zü tu-run-cu ol-du. Çok gü-zel-di.'},
+      {img:'⛺', text:'Ge-ce çar-dak-ta otur-du-lar. Yıl-dız-la-ra bak-tı-lar. Hep-si par-lı-yor-du.'},
+      {img:'💙', text:'E-la de-ni-zi çok sev-di. "Her yaz ge-li-riz" de-di ba-ba-sı. Se-vin-di.'},
+    ]
+  },
+  {
+    id:5, title:'Sihirli Fırın', emoji:'🍞', color:'#F59E0B', bg:'#FFFBEB',
+    level:'A2 — Temel', pages:[
+      {img:'🏚️', text:"Kü-çük bir ka-sa-ba-da ya-şlı bir fı-rın-cı var-dı. A-dı Us-ta Meh-met'ti."},
+      {img:'🌙', text:'Her sa-bah çok er-ken kal-kar-dı. Unu ha-zır-lar, fı-rı-nı ya-kar-dı.'},
+      {img:'🍞', text:'Ek-mek-le-ri fı-rın-dan çı-kar-dı. Ko-ku bü-tün so-ka-ğa ya-yı-lır-dı.'},
+      {img:'👧', text:'Bir kız ço-ğu-ğu her gün ek-mek a-lır-dı. Pa-ra-sı yok-tu ba-zı gün-ler.'},
+      {img:'❤️', text:'Us-ta Meh-met o za-man "Al" der-di. "Pa-ra-yı son-ra ve-rir-sin" der-di.'},
+      {img:'⛄', text:'Bir kış gü-nü sar-tı kar yağ-dı. Us-ta Meh-met has-ta-lan-dı. Ek-mek ya-pa-ma-dı.'},
+      {img:'👨‍👩‍👧', text:'Ka-sa-ba halk-kı top-lan-dı. Her-kes bir şey ge-tir-di. Çor-ba, ek-mek, mey-ve.'},
+      {img:'💊', text:'Doc-tor gel-di. us-ta-yı te-da-vi et-ti. Halk-kın sev-gi-si iyi-leş-tir-di.'},
+      {img:'🌟', text:'Us-ta iyi-le-şin-ce tek-rar ek-mek yap-tı. Bu kez her-ke-se ü-cretsiz ver-di.'},
+      {img:'🏘️', text:'Ka-sa-ba-da her-kes öğ-ren-di: İ-yi-lik ya-pan-a i-yi-lik dö-ner.'},
+    ]
+  },
+  {
+    id:6, title:'Yıldızlara Bakan Çocuk', emoji:'⭐', color:'#8B5CF6', bg:'#F5F3FF',
+    level:'B1 — Orta', pages:[
+      {img:'🌃', text:'Can her ge-ce pen-ce-re-sin-den yıl-dız-la-ra ba-kar-dı. On-la-rı sa-yar-dı.'},
+      {img:'🔭', text:'Ba-ba-sı o-na kü-çük bir te-les-kop al-dı. Can çok se-vin-di. U-yu-ya-ma-dı.'},
+      {img:'🌙', text:'İlk ge-ce te-les-ko-bu ku-ra-madı. Ba-ba-sıy-la bir-lik-te kur-du-lar. Bir saat sür-dü.'},
+      {img:'⭐', text:'A-ya bak-tı. Çu-kur-lar gör-dü. "Kra-ter-ler" de-di ba-ba-sı. Hay-ran ol-du.'},
+      {img:'🪐', text:"Sa-türn'ü gör-dü. Ha-le-le-ri var-dı. Na-sıl o-luş-tu? diy-e sor-du."},
+      {img:'📚', text:'Ba-ba-sı ki-tap ge-tir-di. U-zay ki-ta-bıy-dı. Can ge-ce-ye ka-dar o-ku-du.'},
+      {img:'🚀', text:'"Ben bir gün u-za-ya gi-de-ce-ğim" de-di Can. Ba-ba-sı gül-dü. "Ça-lış-man ge-re-kir."'},
+      {img:'📐', text:'Er-te-si gün o-ku-la git-ti. Ma-te-ma-tik ders-i-ni çok di-kkat-le din-le-di.'},
+      {img:'🏫', text:'Öğ-ret-me-ni gör-dü ne ka-dar dik-kat-li-ydi. "U-za-yı se-vi-yor mu-sun?" di-ye sor-du.'},
+      {img:'🌌', text:'Can gül-dü. "E-vet" de-di. "Bir gün yi-ne ça-lı-şa-rak or-a-ya gi-de-ce-ğim."'},
+    ]
+  },
+  {
+    id:7, title:'Kardeşler ve Hazine', emoji:'💎', color:'#EF4444', bg:'#FEF2F2',
+    level:'B1 — Orta', pages:[
+      {img:'👦👧', text:'Ze-nep ve O-mer iki kar-deş-ti. Her za-man bir-lik-te oy-nar-lar-dı.'},
+      {img:'🗺️', text:'Bir gün çar-dak-ta es-ki bir ku-tu bul-du-lar. I-çin-de bir ha-ri-ta var-dı.'},
+      {img:'🔍', text:'Ha-ri-ta-yı in-ce-le-di-ler. U-cun-da "X" iş-a-re-ti var-dı. Bul-mak is-te-di-ler.'},
+      {img:'🌳', text:'Bah-çe-de a-ğa-ca git-ti-ler. Ha-ri-ta-da-ki a-ğaç-la ay-nıy-dı. Dik-kat-le bak-tı-lar.'},
+      {img:'🪨', text:'A-ğa-cın di-bi-ne bak-tı-lar. Bü-yük bir taş var-dı. İ-ki-si bir-den it-ti-ler.'},
+      {img:'📦', text:'Taş-ın al-tın-da ah-şap bir ku-tu bul-du-lar. Es-ki ve tozluydu. Aç-tı-lar.'},
+      {img:'📸', text:'I-çin-de fo-toğ-raf-lar var-dı. Çok es-ki-ydi. Ve bir mek-tup. Sar-mış-tı.'},
+      {img:'📝', text:'Mek-tu-bu o-ku-du-lar. De-de-le-ri yaz-mış-tı. "Bu fo-toğ-raf-lar si-ze ar-ma-ğan."'},
+      {img:'👴', text:'An-ne-le-ri-ne gös-ter-di-ler. An-ne-le-ri a-ğla-dı. "De-de-niz-den ka-lı-na-mış" de-di.'},
+      {img:'💝', text:'O gün an-la-dı-lar: En bü-yük ha-zi-ne geç-miş-te-ki sev-gi-dir.'},
+    ]
+  },
+  {
+    id:8, title:'Ormanın Koruyucusu', emoji:'🦉', color:'#10B981', bg:'#ECFDF5',
+    level:'B1 — Orta', pages:[
+      {img:'🌲', text:'Ka-ran-lık bir or-man-da ya-şlı bir bay-kuş ya-şar-dı. Her-kes o-na da-nı-şır-dı.'},
+      {img:'🐰', text:'Bir ta-vşan gel-di. "Bay-kuş Am-ca" de-di. "A-ğaç-lar ke-si-li-yor. Ne ya-pa-lım?"'},
+      {img:'🦊', text:'Til-ki de gel-di. "Ben de gör-düm" de-di. "In-san-lar ma-ki-ne-ler-le ge-li-yor."'},
+      {img:'🦉', text:'Bay-kuş dü-şün-dü. "Pa-nik-le-me-yin" de-di. "A-kıl-la çö-ze-riz bu-nu."'},
+      {img:'📢', text:'Hay-van-lar bir-lik-te ka-ra-ra var-dı. I-sa-bah er-ken kal-kıp in-san-la-ra gi-de-cek-ler-di.'},
+      {img:'👨‍👩‍👧', text:'Kö-yün ço-cuk-la-rı-na git-ti-ler. Ço-cuk-lar hay-van-la-rı gö-rün-ce şa-şır-dı.'},
+      {img:'🌱', text:'"Or-ma-nı kes-me-yin" de-di bay-kuş. "A-ğaç-lar ol-maz-sa su ol-maz. Ha-va ol-maz."'},
+      {img:'👧', text:'Kü-çük bir kız el-di-ven al-dı. "Ben ağaç di-ke-ce-ğim" de-di. Her-kes al-kış-la-dı.'},
+      {img:'🌳', text:'Kö-y hal-kı top-la-nıp ye-ni a-ğaç-lar dik-ti. Or-ma-nı kes-me-yi bı-rak-tı-lar.'},
+      {img:'🌿', text:'Bay-kuş ka-nat-la-rı-nı aç-tı. "Bir ki-şi-nin i-yi niy-ye-ti her-şe-yi de-ğiş-ti-re-bi-lir" de-di.'},
+    ]
+  },
+  {
+    id:9, title:"Kar Tanesi'nin Yolculuğu", emoji:'❄️', color:'#3B82F6', bg:'#EFF6FF',
+    level:'B1 — Orta', pages:[
+      {img:'☁️', text:'Bir bu-lut-ta kü-çük bir su da-mla-cı-ğı var-dı. Yüz-ler-ce yıl-dır o-ra-day-dı.'},
+      {img:'❄️', text:'Hava soğu-du. Dam-la-cık don-du. Kar ta-ne-si ol-du. Al-tı köşe-liy-di. Eş-siz-di.'},
+      {img:'🌨️', text:'Kar yağ-ma-ya baş-la-dı. Kar ta-ne-si a-şa-ğı-ya düş-tü. Rüz-gar-la dans et-ti.'},
+      {img:'🏔️', text:'Dağ-ın te-pe-si-ne kon-du. O-ra-da bin-ler-ce kar ta-ne-si var-dı. Bir-leş-ti-ler.'},
+      {img:'🌞', text:'Il-kba-har gel-di. Gü-neş ısıt-tı. Kar ta-ne-si e-ri-me-ye baş-la-dı. Su ol-du.'},
+      {img:'💧', text:'Su a-kar-dı. Dağ-dan a-şa-ğı doğ-ru ak-tı. Bir de-re ol-du. Çağ-la-dı.'},
+      {img:'🌾', text:'De-re tar-la-la-ra u-laş-tı. Bu-ğday-la-rı su-la-dı. Bit-ki-ler bü-yü-dü.'},
+      {img:'🚰', text:'Şe-hir-de in-san-lar bu su-yu iç-ti. Ço-cuk-lar coş-kuy-la koş-tu. Ha-yat var-dı.'},
+      {img:'🌊', text:'Su a-kıp de-ni-ze u-laş-tı. Bü-yük da-la-ga-lar-la bu-luş-tu. Ne-fis-ti.'},
+      {img:'☁️', text:'Gü-neş su-yu bu-har-laş-tır-dı. Tek-rar bu-lu-ta dö-ndü. Yol-cu-luk baş-la-ya-cak-tı.'},
+    ]
+  },
+  {
+    id:10, title:"Türkiye'nin Renkleri", emoji:'🇹🇷', color:'#EF4444', bg:'#FEF2F2',
+    level:'A2 — Temel', pages:[
+      {img:'🗺️', text:'Tür-ki-ye gü-zel bir ül-ke-dir. Do-ğu-su var, ba-tı-sı var. Her bölge fark-lı-dır.'},
+      {img:'🏙️', text:'İs-tan-bul bü-yük bir şe-hir-dir. Bo-ğaz or-ta-sın-dan ge-çer. İki kı-ta-yı bi-leş-ti-rir.'},
+      {img:'🏔️', text:'Do-ğu-da dağ-lar var. Kar hiç erimez ba-zı-la-rın-da. Muh-te-şem gö-rün-tü-ler var.'},
+      {img:'🌊', text:'Ak-de-niz kı-yı-la-rı ma-vi-dir. Yaz-ın çok sı-cak-tır. Tu-rist-ler çok ge-lir.'},
+      {img:'🌾', text:"İç A-na-do-lu'da geniş o-va-lar var. Bu-ğday tar-la-la-rı u-za-nıp gi-der. Türk-iye ek-mek-çi-dir."},
+      {img:'🍅', text:"E-ge'de ze-ytin bah-çe-le-ri var. Do-ma-tes, bi-ber, patlıcan ye-tiş-ir. Çok lezzetli."},
+      {img:'🎭', text:'Her böl-ge-nin ken-di mü-zi-ği var. Halk o-yun-la-rı gü-zel-dir. Renk-li kıya-fet-ler gi-yi-lir.'},
+      {img:'🏛️', text:"Tür-ki-ye'de ta-ri-hi yer-ler çok-tur. Ef-es, Tro-ya, Ka-pa-dok-ya. Bin-ler-ce yıl-lık geç-miş."},
+      {img:'🍽️', text:'Türk mut-fa-ğı çe-şit-li-dir. Ke-bap, ba-kla-va, börek. Dün-ya-da se-vi-lir.'},
+      {img:'❤️', text:'Tür-ki-ye in-san-la-rı mi-sa-fir-per-ver-dir. "Hoş gel-di-niz" der-ler her za-man. Sev-gi-li-dir.'},
+    ]
+  },
+];
+
+// ============================================================
+// LIBRARY FUNCTIONS
+// ============================================================
+const LIB_PROGRESS = {}; // bookId -> {currentPage, readPages}
+
+function initLibrary(){
+  document.getElementById('lib-shelf-view').style.display = 'block';
+  document.getElementById('lib-reader-view').style.display = 'none';
+  renderShelf();
+}
+
+function renderShelf(){
+  const g = document.getElementById('lib-grid');
+  g.innerHTML = '<div class="book-grid">' + BOOKS.map(b => {
+    const prog = LIB_PROGRESS[b.id] || {currentPage:0, readPages:new Set()};
+    const readCount = prog.readPages ? prog.readPages.size : 0;
+    const pct = Math.round(readCount / b.pages.length * 100);
+    const done = readCount === b.pages.length;
+    return `
+      <div class="book-card" onclick="openBook(${b.id})">
+        <div class="book-cover" style="background:${b.bg};">
+          <span style="font-size:52px;">${b.emoji}</span>
+          <span class="book-badge ${done?'done':''}">${done?'✓ Bitti':''+readCount+'/'+b.pages.length}</span>
+        </div>
+        <div class="book-info">
+          <div class="book-title">${b.title}</div>
+          <div class="book-meta">${b.level} · ${b.pages.length} sayfa</div>
+          <div class="book-prog-bar"><div class="book-prog-fill" style="width:${pct}%;background:${b.color};"></div></div>
+        </div>
+      </div>`;
+  }).join('') + '</div>';
+}
+
+function openBook(id){
+  const book = BOOKS.find(b => b.id === id);
+  if(!LIB_PROGRESS[id]) LIB_PROGRESS[id] = {currentPage:0, readPages:new Set()};
+  document.getElementById('lib-shelf-view').style.display = 'none';
+  const rv = document.getElementById('lib-reader-view');
+  rv.style.display = 'block';
+  rv.innerHTML = '<div class="reader-wrap" id="reader-inner"></div>';
+  renderReader(book);
+}
+
+function renderReader(book){
+  const prog = LIB_PROGRESS[book.id];
+  const pageIdx = prog.currentPage;
+  const page = book.pages[pageIdx];
+  const totalPages = book.pages.length;
+
+  // Mark page as read
+  prog.readPages.add(pageIdx);
+
+  // Build page text with syllable spans (rword for tap-to-hear)
+  const colors4 = ['#3B82F6','#FF6B35','#8B5CF6','#10B981'];
+  let colorIdx = 0;
+  const textSpans = page.text.split(' ').map(raw => {
+    const clean = raw.replace(/[.,!?'"]/g,'');
+    if(!clean) return raw;
+    // Split on hyphens (syllable markers)
+    const parts = raw.split('-');
+    if(parts.length === 1){
+      // Single syllable word — still give it a color
+      const col = colors4[colorIdx % 4];
+      colorIdx++;
+      return `<span class="rword" onclick="say('${clean}')" style="color:${col};font-weight:800;">${raw}</span>`;
+    }
+    // Multi-syllable word — each syllable gets its own color
+    const sylSpans = parts.map((p,i) =>
+      `<span style="color:${colors4[(colorIdx+i)%4]};font-weight:800;">${p}</span>`
+    ).join('<span style="color:#9CA3AF;font-size:12px;">·</span>');
+    colorIdx += parts.length;
+    return `<span class="rword" onclick="say('${clean}')">${sylSpans}</span>`;
+  }).join(' ');
+
+  // Dot nav
+  const dots = book.pages.map((_, i) => {
+    const cls = prog.readPages.has(i) ? (i===pageIdx?'current':'read') : (i===pageIdx?'current':'');
+    return `<div class="page-dot ${cls}" onclick="jumpPage(${book.id},${i})"></div>`;
+  }).join('');
+
+  const isFirst = pageIdx === 0;
+  const isLast = pageIdx === totalPages - 1;
+  const isAllDone = prog.readPages.size === totalPages;
+
+  document.getElementById('reader-inner').innerHTML = `
+    <div class="reader-top">
+      <button class="btn btn-ghost btn-sm" onclick="initLibrary()">← Kitaplık</button>
+      <div class="reader-title">${book.emoji} ${book.title}</div>
+      <div class="page-indicator">${pageIdx+1} / ${totalPages}</div>
+    </div>
+
+    <div class="page-card" style="border-top:4px solid ${book.color};">
+      <div class="page-illustration">${page.img}</div>
+      <div class="page-text">${textSpans}</div>
+    </div>
+
+    <div class="reader-controls">
+      <button class="btn btn-ghost" onclick="turnPage(${book.id},-1)" ${isFirst?'disabled style="opacity:.4"':''}>← Önceki</button>
+      <button class="btn btn-blue btn-sm" onclick="say('${page.text.replace(/'/g,"\'")}')">🔊 Dinle</button>
+      ${isLast
+        ? `<button class="btn btn-orange" onclick="finishBook(${book.id})">✅ Bitirdim! +60 XP</button>`
+        : `<button class="btn btn-orange" onclick="turnPage(${book.id},1)">Sonraki →</button>`}
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="page-dots">${dots}</div>
+      <div style="text-align:center;font-size:11px;color:var(--ink3);margin-top:8px;">${prog.readPages.size}/${totalPages} sayfa okundu</div>
+    </div>
+
+    ${isAllDone ? '<div style="text-align:center;margin-top:16px;padding:14px;background:var(--green-lt);border-radius:var(--r-sm);border:1.5px solid var(--green);"><span style="font-size:24px;">🏆</span><div style="font-size:14px;font-weight:800;color:var(--green);margin-top:4px;">Bu kitabı bitirdin!</div></div>' : ''}
+  `;
+}
+
+function turnPage(bookId, dir){
+  const book = BOOKS.find(b => b.id === bookId);
+  const prog = LIB_PROGRESS[bookId];
+  const newPage = prog.currentPage + dir;
+  if(newPage < 0 || newPage >= book.pages.length) return;
+  prog.currentPage = newPage;
+  document.getElementById('scroll-area').scrollTop = 0;
+  renderReader(book);
+}
+
+function jumpPage(bookId, idx){
+  const book = BOOKS.find(b => b.id === bookId);
+  LIB_PROGRESS[bookId].currentPage = idx;
+  document.getElementById('scroll-area').scrollTop = 0;
+  renderReader(book);
+}
+
+function finishBook(bookId){
+  const book = BOOKS.find(b => b.id === bookId);
+  const prog = LIB_PROGRESS[bookId];
+  // Mark all pages read
+  book.pages.forEach((_, i) => prog.readPages.add(i));
+  addXP(60, '📚', '"'+book.title+'" Kitabını Bitirdin!');
+  renderShelf();
+  document.getElementById('lib-shelf-view').style.display = 'block';
+  document.getElementById('lib-reader-view').style.display = 'none';
+}
+
+const VOWELS=['A','E','I','İ','O','Ö','U','Ü'];
+const CONS=LETTERS.filter(x=>x.t==='c').map(x=>x.l);
+
+const SYLMAP={
+  MA:['ma-sa','ma-ma','ma-vi'],ME:['me-lek','me-şe'],Mİ:['mi-de'],MO:['mo-tor'],MU:['mu-zu'],MÜ:['mü-zik'],
+  NA:['na-ne','na-sıl'],NE:['ne-re','ne-den'],Nİ:['ni-ye'],NO:['no-ta'],NU:['nu-ma'],
+  SA:['sa-at','sa-çak'],SE:['se-vim'],Sİ:['si-nem'],SO:['so-ğan'],SU:['su-da'],SÜ:['sü-rü'],
+  LA:['la-le','la-ma'],LE:['le-mon'],Lİ:['li-man'],LÜ:['lü-ks'],
+  TA:['ta-va','ta-ne'],TE:['te-pe'],Tİ:['ti-re'],TO:['to-pu'],TÜ:['tü-fek'],
+  BA:['ba-ba','ba-lık'],BE:['be-bek'],Bİ:['bi-ber'],BO:['bo-yun'],BÜ:['bü-yük'],
+  KA:['ka-lem','ka-ra'],KE:['ke-di'],Kİ:['ki-tap'],KO:['ko-ca'],KÜ:['kü-çük'],
+  DA:['da-ma'],DE:['de-niz'],Dİ:['di-rek'],DO:['do-ğa'],DÜ:['dü-şün'],
+  GE:['ge-mi'],GÜ:['gü-neş'],GA:['ga-raj'],
+  RA:['ra-hat'],RE:['re-sim'],Rİ:['ri-tim'],
+  YA:['ya-ğış','ya-prak'],YE:['ye-şil'],Yİ:['yi-ğit'],
+  PA:['pa-zar','pa-ta-tes'],PE:['pen-ce-re']};
+
+// ---- SYLLABLE WORD LIST ----
+const SYL_WORDS = [
+  {w:'araba',s:['a','ra','ba']},{w:'kalem',s:['ka','lem']},{w:'defter',s:['def','ter']},
+  {w:'ev',s:['ev']},{w:'okul',s:['o','kul']},{w:'kitap',s:['ki','tap']},
+  {w:'anne',s:['an','ne']},{w:'baba',s:['ba','ba']},{w:'kardeş',s:['kar','deş']},
+  {w:'güneş',s:['gü','neş']},{w:'çiçek',s:['çi','çek']},{w:'elma',s:['el','ma']},
+  {w:'muz',s:['muz']},{w:'çanta',s:['çan','ta']},{w:'masa',s:['ma','sa']},
+  {w:'telefon',s:['te','le','fon']},{w:'öğretmen',s:['öğ','ret','men']},
+  {w:'pencere',s:['pen','ce','re']},{w:'çocuk',s:['ço','cuk']},
+  {w:'yıldız',s:['yıl','dız']},{w:'kelebek',s:['ke','le','bek']},
+  {w:'deniz',s:['de','niz']},{w:'saat',s:['sa','at']},{w:'bardak',s:['bar','dak']},
+  {w:'sepet',s:['se','pet']},{w:'ağaç',s:['a','ğaç']},{w:'yağmur',s:['yağ','mur']},
+  {w:'kuşlar',s:['kuş','lar']},{w:'balık',s:['ba','lık']},{w:'tren',s:['tren']},
+];
+
+// ---- READING LEVELS ----
+const RLEVELS = [
+  { id:'r1', label:'1 — Tek Heceli', icon:'🌱', col:'#10B981',
+    texts:[
+      { title:'Su ve Bal', plain:'Su var. Bal var. Al su iç.',
+        lines:[ [{w:'Su',s:['Su'],c:[1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'Bal',s:['Bal'],c:[1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'Al',s:['Al'],c:[1]},{w:'su',s:['su'],c:[2]},{w:'iç.',s:['iç'],c:[1]}] ] },
+      { title:'At ve Kaz', plain:'At koş. Kaz uç. At hızlı koş. Kaz yüksek uç.',
+        lines:[ [{w:'At',s:['At'],c:[1]},{w:'koş.',s:['koş'],c:[2]}],
+                [{w:'Kaz',s:['Kaz'],c:[1]},{w:'uç.',s:['uç'],c:[2]}],
+                [{w:'At',s:['At'],c:[1]},{w:'hız-lı',s:['hız','lı'],c:[1,2]},{w:'koş.',s:['koş'],c:[1]}],
+                [{w:'Kaz',s:['Kaz'],c:[2]},{w:'yük-sek',s:['yük','sek'],c:[1,2]},{w:'uç.',s:['uç'],c:[1]}] ] },
+      { title:'El ve Yüz', plain:'El var. Yüz var. El yıka. Yüz sil.',
+        lines:[ [{w:'El',s:['El'],c:[1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'Yüz',s:['Yüz'],c:[1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'El',s:['El'],c:[1]},{w:'yı-ka.',s:['yı','ka'],c:[1,2]}],
+                [{w:'Yüz',s:['Yüz'],c:[2]},{w:'sil.',s:['sil'],c:[1]}] ] },
+    ]
+  },
+  { id:'r2', label:'2 — İki Heceli', icon:'🌿', col:'#3B82F6',
+    texts:[
+      { title:'Ma·ma Var', plain:'Mama var. Baba yedi. Nene geldi. Suda balık var.',
+        lines:[ [{w:'Ma-ma',s:['Ma','ma'],c:[1,2]},{w:'var.',s:['var'],c:[1]}],
+                [{w:'Ba-ba',s:['Ba','ba'],c:[1,2]},{w:'ye-di.',s:['ye','di'],c:[1,2]}],
+                [{w:'Ne-ne',s:['Ne','ne'],c:[1,2]},{w:'gel-di.',s:['gel','di'],c:[1,2]}],
+                [{w:'Su-da',s:['Su','da'],c:[1,2]},{w:'ba-lık',s:['ba','lık'],c:[1,2]},{w:'var.',s:['var'],c:[1]}] ] },
+      { title:'Ka·ra Ka·lem', plain:'Kara kalem al. Masa üzerinde dur. Yazı yaz.',
+        lines:[ [{w:'Ka-ra',s:['Ka','ra'],c:[1,2]},{w:'ka-lem',s:['ka','lem'],c:[1,2]},{w:'al.',s:['al'],c:[1]}],
+                [{w:'Ma-sa',s:['Ma','sa'],c:[1,2]},{w:'ü-ze-rin-de',s:['ü','ze','rin','de'],c:[1,2,1,2]},{w:'dur.',s:['dur'],c:[1]}],
+                [{w:'Ya-zı',s:['Ya','zı'],c:[1,2]},{w:'yaz.',s:['yaz'],c:[2]}] ] },
+      { title:'Be·bek Uyu·yor', plain:'Bebek uyuyor. Anne bakıyor. Ses yok. Bebek mutlu.',
+        lines:[ [{w:'Be-bek',s:['Be','bek'],c:[1,2]},{w:'u-yu-yor.',s:['u','yu','yor'],c:[1,2,1]}],
+                [{w:'An-ne',s:['An','ne'],c:[1,2]},{w:'ba-kı-yor.',s:['ba','kı','yor'],c:[1,2,1]}],
+                [{w:'Ses',s:['Ses'],c:[2]},{w:'yok.',s:['yok'],c:[1]}],
+                [{w:'Be-bek',s:['Be','bek'],c:[1,2]},{w:'mut-lu.',s:['mut','lu'],c:[1,2]}] ] },
+    ]
+  },
+  { id:'r3', label:'3 — Kısa Cümleler', icon:'🌳', col:'#8B5CF6',
+    texts:[
+      { title:'A·li Top A·tar', plain:'Ali top atar. Topu uzağa atar. Ali koştu. O çok mutlu.',
+        lines:[ [{w:'A-li',s:['A','li'],c:[1,2]},{w:'top',s:['top'],c:[1]},{w:'a-tar.',s:['a','tar'],c:[1,2]}],
+                [{w:'To-pu',s:['To','pu'],c:[1,2]},{w:'u-za-ğa',s:['u','za','ğa'],c:[1,2,1]},{w:'a-tar.',s:['a','tar'],c:[2,1]}],
+                [{w:'A-li',s:['A','li'],c:[1,2]},{w:'koş-tu.',s:['koş','tu'],c:[1,2]}],
+                [{w:'O',s:['O'],c:[1]},{w:'çok',s:['çok'],c:[2]},{w:'mut-lu.',s:['mut','lu'],c:[1,2]}] ] },
+      { title:'Be·nim A·i·lem', plain:'Benim ailem büyük. Annem ve babam var. Kardeşim küçük.',
+        lines:[ [{w:'Be-nim',s:['Be','nim'],c:[1,2]},{w:'a-i-lem',s:['a','i','lem'],c:[1,2,1]},{w:'bü-yük.',s:['bü','yük'],c:[1,2]}],
+                [{w:'An-nem',s:['An','nem'],c:[1,2]},{w:'ve',s:['ve'],c:[1]},{w:'bab-am',s:['bab','am'],c:[2,1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'Kar-de-şim',s:['Kar','de','şim'],c:[1,2,1]},{w:'kü-çük.',s:['kü','çük'],c:[2,1]}],
+                [{w:'Biz',s:['Biz'],c:[2]},{w:'bir-lik-te',s:['bir','lik','te'],c:[1,2,1]},{w:'o-yu-na-rız.',s:['o','yu','na','rız'],c:[2,1,2,1]}] ] },
+      { title:'O·ku·lum Gü·zel', plain:'Okulun çok güzel. Öğretmenim iyi. Her gün okula gidiyorum.',
+        lines:[ [{w:'O-ku-lum',s:['O','ku','lum'],c:[1,2,1]},{w:'çok',s:['çok'],c:[2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+                [{w:'Öğ-ret-me-nim',s:['Öğ','ret','me','nim'],c:[1,2,1,2]},{w:'i-yi.',s:['i','yi'],c:[1,2]}],
+                [{w:'Ar-ka-daş-la-rım',s:['Ar','ka','daş','la','rım'],c:[1,2,1,2,1]},{w:'var.',s:['var'],c:[2]}],
+                [{w:'Her',s:['Her'],c:[1]},{w:'gün',s:['gün'],c:[2]},{w:'o-ku-la',s:['o','ku','la'],c:[1,2,1]},{w:'gi-di-yo-rum.',s:['gi','di','yo','rum'],c:[2,1,2,1]}] ] },
+    ]
+  },
+  { id:'r4', label:'4 — Uzun Cümleler', icon:'🌲', col:'#FF6B35',
+    texts:[
+      { title:'Güneş Doğuyor', plain:'Güneş doğuyor. Hava ısınıyor. Çiçekler açıyor. Kuşlar şarkı söylüyor. Ne güzel sabah!',
+        lines:[ [{w:'Gü-neş',s:['Gü','neş'],c:[1,2]},{w:'do-ğu-yor.',s:['do','ğu','yor'],c:[1,2,1]}],
+                [{w:'Ha-va',s:['Ha','va'],c:[1,2]},{w:'ı-sı-nı-yor.',s:['ı','sı','nı','yor'],c:[2,1,2,1]}],
+                [{w:'Çi-çek-ler',s:['Çi','çek','ler'],c:[1,2,1]},{w:'a-çı-yor.',s:['a','çı','yor'],c:[2,1,2]}],
+                [{w:'Kuş-lar',s:['Kuş','lar'],c:[1,2]},{w:'şar-kı',s:['şar','kı'],c:[1,2]},{w:'söy-lü-yor.',s:['söy','lü','yor'],c:[1,2,1]}],
+                [{w:'Ne',s:['Ne'],c:[2]},{w:'gü-zel',s:['gü','zel'],c:[1,2]},{w:'sa-bah!',s:['sa','bah'],c:[1,2]}] ] },
+      { title:'Yağmur Yağıyor', plain:'Yağmur yağıyor. Gökyüzü bulutlu. Şemsiyemi aldım. Yağmurda yürümek güzeldir.',
+        lines:[ [{w:'Yağ-mur',s:['Yağ','mur'],c:[1,2]},{w:'ya-ğı-yor.',s:['ya','ğı','yor'],c:[1,2,1]}],
+                [{w:'Gök-yü-zü',s:['Gök','yü','zü'],c:[2,1,2]},{w:'bu-lut-lu.',s:['bu','lut','lu'],c:[1,2,1]}],
+                [{w:'Şem-si-ye-mi',s:['Şem','si','ye','mi'],c:[1,2,1,2]},{w:'al-dım.',s:['al','dım'],c:[1,2]}],
+                [{w:'Dı-şa-rı',s:['Dı','şa','rı'],c:[1,2,1]},{w:'çık-tım.',s:['çık','tım'],c:[2,1]}],
+                [{w:'Yağ-mur-da',s:['Yağ','mur','da'],c:[1,2,1]},{w:'yü-rü-mek',s:['yü','rü','mek'],c:[2,1,2]},{w:'gü-zel-dir.',s:['gü','zel','dir'],c:[1,2,1]}] ] },
+      { title:'Pa·za·ra Gi·di·yo·ruz', plain:'Annemle pazara gittik. Elma, armut ve muz aldık. Eve döndük.',
+        lines:[ [{w:'An-nem-le',s:['An','nem','le'],c:[1,2,1]},{w:'pa-za-ra',s:['pa','za','ra'],c:[2,1,2]},{w:'git-tik.',s:['git','tik'],c:[1,2]}],
+                [{w:'El-ma,',s:['El','ma'],c:[1,2]},{w:'ar-mut',s:['ar','mut'],c:[1,2]},{w:'ve',s:['ve'],c:[1]},{w:'muz',s:['muz'],c:[2]},{w:'al-dık.',s:['al','dık'],c:[1,2]}],
+                [{w:'Ma-na-va-cı',s:['Ma','na','va','cı'],c:[1,2,1,2]},{w:'gü-lüm-se-di.',s:['gü','lüm','se','di'],c:[1,2,1,2]}],
+                [{w:'E-vi-mi-ze',s:['E','vi','mi','ze'],c:[1,2,1,2]},{w:'dön-dük.',s:['dön','dük'],c:[1,2]}] ] },
+    ]
+  },
+  { id:'r5', label:'5 — Kısa Hikaye', icon:'📗', col:'#10B981',
+    texts:[
+      { title:'Kedi ve Köpek', plain:'Bir varmış bir yokmuş. Küçük bir kedi varmış. Adı Minoş. Bahçede oynar. Bir gün köpek geldi. İkisi arkadaş oldu.',
+        lines:[ [{w:'Bir',s:['Bir'],c:[1]},{w:'var-mış,',s:['var','mış'],c:[1,2]},{w:'bir',s:['bir'],c:[1]},{w:'yok-muş.',s:['yok','muş'],c:[2,1]}],
+                [{w:'Kü-çük',s:['Kü','çük'],c:[1,2]},{w:'bir',s:['bir'],c:[1]},{w:'ke-di',s:['ke','di'],c:[2,1]},{w:'var-mış.',s:['var','mış'],c:[2,1]}],
+                [{w:'A-dı',s:['A','dı'],c:[1,2]},{w:"Mi-noş'muş.",s:['Mi','noş','muş'],c:[1,2,1]}],
+                [{w:'Mi-noş',s:['Mi','noş'],c:[1,2]},{w:'her',s:['her'],c:[1]},{w:'gün',s:['gün'],c:[2]},{w:'bah-çe-de',s:['bah','çe','de'],c:[1,2,1]},{w:'oy-nar-mış.',s:['oy','nar','mış'],c:[2,1,2]}],
+                [{w:'Bir',s:['Bir'],c:[1]},{w:'gün',s:['gün'],c:[2]},{w:'kö-pek',s:['kö','pek'],c:[1,2]},{w:'gel-di.',s:['gel','di'],c:[1,2]}],
+                [{w:'İ-ki-si',s:['İ','ki','si'],c:[1,2,1]},{w:'ar-ka-daş',s:['ar','ka','daş'],c:[2,1,2]},{w:'ol-du.',s:['ol','du'],c:[1,2]}] ] },
+      { title:'Sihirli Kalem', plain:'Elifin sihirli bir kalemi vardı. Çizdiği her şey gerçek oluyordu. Çiçek çizdi, çiçek bitti. Güneş çizdi, ışık geldi. Ne mutlu çocuktu.',
+        lines:[ [{w:"E-lif'in",s:['E','lif','in'],c:[1,2,1]},{w:'si-hir-li',s:['si','hir','li'],c:[2,1,2]},{w:'bir',s:['bir'],c:[1]},{w:'ka-le-mi',s:['ka','le','mi'],c:[2,1,2]},{w:'var-dı.',s:['var','dı'],c:[1,2]}],
+                [{w:'Çiz-di-ği',s:['Çiz','di','ği'],c:[1,2,1]},{w:'her',s:['her'],c:[2]},{w:'şey',s:['şey'],c:[1]},{w:'ger-çek',s:['ger','çek'],c:[2,1]},{w:'o-lu-yor-du.',s:['o','lu','yor','du'],c:[2,1,2,1]}],
+                [{w:'Çi-çek',s:['Çi','çek'],c:[1,2]},{w:'çiz-di,',s:['çiz','di'],c:[1,2]},{w:'çi-çek',s:['çi','çek'],c:[1,2]},{w:'bit-ti.',s:['bit','ti'],c:[1,2]}],
+                [{w:'Gü-neş',s:['Gü','neş'],c:[1,2]},{w:'çiz-di,',s:['çiz','di'],c:[1,2]},{w:'ı-şık',s:['ı','şık'],c:[1,2]},{w:'gel-di.',s:['gel','di'],c:[1,2]}],
+                [{w:'Ne',s:['Ne'],c:[1]},{w:'mut-lu',s:['mut','lu'],c:[2,1]},{w:'ço-cuk-tu!',s:['ço','cuk','tu'],c:[2,1,2]}] ] },
+      { title:'Küçük Tohum', plain:'Toprağa küçük bir tohum düşüyordu. Yağmur suladı. Güneş ışıttı. Tohum yeşerdi. Küçük bir fidan çıktı. Bir gün büyük ağaç oldu.',
+        lines:[ [{w:'Top-ra-ğa',s:['Top','ra','ğa'],c:[1,2,1]},{w:'kü-çük',s:['kü','çük'],c:[2,1]},{w:'bir',s:['bir'],c:[2]},{w:'to-hum',s:['to','hum'],c:[1,2]},{w:'dü-şü-yor-du.',s:['dü','şü','yor','du'],c:[1,2,1,2]}],
+                [{w:'Yağ-mur',s:['Yağ','mur'],c:[1,2]},{w:'su-la-dı.',s:['su','la','dı'],c:[1,2,1]}],
+                [{w:'Gü-neş',s:['Gü','neş'],c:[1,2]},{w:'ı-şıt-tı.',s:['ı','şıt','tı'],c:[2,1,2]}],
+                [{w:'To-hum',s:['To','hum'],c:[1,2]},{w:'yeş-er-di.',s:['yeş','er','di'],c:[1,2,1]}],
+                [{w:'Kü-çük',s:['Kü','çük'],c:[1,2]},{w:'bir',s:['bir'],c:[1]},{w:'fi-dan',s:['fi','dan'],c:[2,1]},{w:'çık-tı.',s:['çık','tı'],c:[2,1]}],
+                [{w:'Bir',s:['Bir'],c:[1]},{w:'gün',s:['gün'],c:[2]},{w:'bü-yük',s:['bü','yük'],c:[1,2]},{w:'a-ğaç',s:['a','ğaç'],c:[2,1]},{w:'ol-du.',s:['ol','du'],c:[2,1]}] ] },
+    ]
+  },
+  { id:'r6', label:'6 — Uzun Hikaye', icon:'📘', col:'#FF6B35',
+    texts:[
+      { title:'Dört Mevsim', plain:'Bir yılda dört mevsim vardır. İlkbahar, yaz, sonbahar ve kış. İlkbaharda çiçekler açar. Yazın hava sıcak olur. Sonbaharda yapraklar döküllür. Kışta kar yağar.',
+        lines:[ [{w:'Bir',s:['Bir'],c:[1]},{w:'yıl-da',s:['yıl','da'],c:[2,1]},{w:'dört',s:['dört'],c:[2]},{w:'mev-sim',s:['mev','sim'],c:[1,2]},{w:'var-dır.',s:['var','dır'],c:[1,2]}],
+                [{w:'İl-ki',s:['İl','ki'],c:[1,2]},{w:'il-kba-har-dır.',s:['ilk','ba','har','dır'],c:[1,2,1,2]}],
+                [{w:'Çi-çek-ler',s:['Çi','çek','ler'],c:[1,2,1]},{w:'a-çar,',s:['a','çar'],c:[2,1]},{w:'kuş-lar',s:['kuş','lar'],c:[2,1]},{w:'ge-ri',s:['ge','ri'],c:[2,1]},{w:'dö-ner.',s:['dö','ner'],c:[2,1]}],
+                [{w:'Son-ra',s:['Son','ra'],c:[1,2]},{w:'yaz',s:['yaz'],c:[1]},{w:'ge-lir.',s:['ge','lir'],c:[2,1]}],
+                [{w:'Ha-va-lar',s:['Ha','va','lar'],c:[1,2,1]},{w:'çok',s:['çok'],c:[2]},{w:'sı-cak-tır.',s:['sı','cak','tır'],c:[1,2,1]}],
+                [{w:'Son-ba-har-da',s:['Son','ba','har','da'],c:[1,2,1,2]},{w:'yap-rak-lar',s:['yap','rak','lar'],c:[1,2,1]},{w:'dö-kü-lür.',s:['dö','kü','lür'],c:[2,1,2]}],
+                [{w:'Kış-ta',s:['Kış','ta'],c:[1,2]},{w:'kar',s:['kar'],c:[1]},{w:'ya-ğar.',s:['ya','ğar'],c:[2,1]}] ] },
+      { title:'Ekmeğin Yolculuğu', plain:'Ekmek buğdaydan yapılır. Çiftçi tohumları eker. Buğday büyür. Değirmende un olur. Fırında pişirilir. Böylece masamıza gelir.',
+        lines:[ [{w:'Ek-mek',s:['Ek','mek'],c:[1,2]},{w:'bu-ğay-dan',s:['bu','ğay','dan'],c:[1,2,1]},{w:'ya-pı-lır.',s:['ya','pı','lır'],c:[2,1,2]}],
+                [{w:'Çift-çi',s:['Çift','çi'],c:[1,2]},{w:'tar-la-ya',s:['tar','la','ya'],c:[1,2,1]},{w:'to-hum',s:['to','hum'],c:[2,1]},{w:'e-ker.',s:['e','ker'],c:[2,1]}],
+                [{w:'To-hum',s:['To','hum'],c:[1,2]},{w:'yeş-er-ir,',s:['yeş','er','ir'],c:[1,2,1]},{w:'bü-yür.',s:['bü','yür'],c:[2,1]}],
+                [{w:'De-ğir-men-de',s:['De','ğir','men','de'],c:[1,2,1,2]},{w:'un',s:['un'],c:[1]},{w:'ha-li-ne',s:['ha','li','ne'],c:[2,1,2]},{w:'ge-ti-ri-lir.',s:['ge','ti','ri','lir'],c:[1,2,1,2]}],
+                [{w:'Fı-rın-da',s:['Fı','rın','da'],c:[1,2,1]},{w:'pi-şi-ri-lir.',s:['pi','şi','ri','lir'],c:[2,1,2,1]}],
+                [{w:'Böy-le-ce',s:['Böy','le','ce'],c:[1,2,1]},{w:'ma-sa-mı-za',s:['ma','sa','mı','za'],c:[2,1,2,1]},{w:'ge-lir.',s:['ge','lir'],c:[1,2]}] ] },
+      { title:'Okumayı Seviyorum', plain:'Kitap okumak çok güzel. Her kitap yeni bir dünyadır. Kitaplar bizi uçurur. Bilgi kazanırız, hayal kurarız. Her sayfada bir armağan. Hep birlikte okuyalım.',
+        lines:[ [{w:'Ki-tap',s:['Ki','tap'],c:[1,2]},{w:'o-ku-mak',s:['o','ku','mak'],c:[1,2,1]},{w:'çok',s:['çok'],c:[2]},{w:'gü-zel.',s:['gü','zel'],c:[1,2]}],
+                [{w:'Her',s:['Her'],c:[1]},{w:'ki-tap',s:['ki','tap'],c:[2,1]},{w:'ye-ni',s:['ye','ni'],c:[2,1]},{w:'bir',s:['bir'],c:[2]},{w:'dün-ya-dır.',s:['dün','ya','dır'],c:[1,2,1]}],
+                [{w:'Ki-tap-lar',s:['Ki','tap','lar'],c:[1,2,1]},{w:'bi-zi',s:['bi','zi'],c:[2,1]},{w:'u-çu-rur.',s:['u','çu','rur'],c:[2,1,2]}],
+                [{w:'Bil-gi',s:['Bil','gi'],c:[1,2]},{w:'ka-za-nı-rız,',s:['ka','za','nı','rız'],c:[1,2,1,2]},{w:'ha-yal',s:['ha','yal'],c:[2,1]},{w:'ku-ra-rız.',s:['ku','ra','rız'],c:[2,1,2]}],
+                [{w:'Her',s:['Her'],c:[1]},{w:'say-fa-da',s:['say','fa','da'],c:[2,1,2]},{w:'bir',s:['bir'],c:[1]},{w:'ar-ma-ğan.',s:['ar','ma','ğan'],c:[2,1,2]}],
+                [{w:'Hep',s:['Hep'],c:[2]},{w:'bir-lik-te',s:['bir','lik','te'],c:[1,2,1]},{w:'o-ku-ya-lım!',s:['o','ku','ya','lım'],c:[2,1,2,1]}] ] },
+    ]
+  },
+];
+
+// ---- SENTENCES ----
+const SENTS = [
+  {words:['Ali','top','atar.'], decoys:['su','gel'], e:'⚽'},
+  {words:['Kedi','süt','içer.'], decoys:['koşar','ev'], e:'🐱'},
+  {words:['Baba','eve','geldi.'], decoys:['okul','masa'], e:'🏠'},
+  {words:['Anne','ekmek','kesti.'], decoys:['itti','araba'], e:'🍞'},
+  {words:['Çocuk','su','içti.'], decoys:['yedi','top'], e:'💧'},
+  {words:['Güneş','çıktı,','hava','ısındı.'], decoys:['yağmur','soğuk'], e:'☀️'},
+  {words:['Kuşlar','uçuyor,','şarkı','söylüyor.'], decoys:['yüzüyor','dans'], e:'🐦'},
+  {words:['Bahçede','çiçekler','açıyor.'], decoys:['sokakta','kapanıyor'], e:'🌸'},
+  {words:['Balıklar','suda','yüzüyor.'], decoys:['koşuyor','karada'], e:'🐟'},
+  {words:['Kitap','okumak','güzeldir.'], decoys:['koşmak','kötüdür'], e:'📚'},
+];
+
+// ---- ACTIVITIES ----
+const ACTS = [
+  {id:'ml', emoji:'🔡', title:'Eksik Harf', sub:'Kelimeye eksik harfi bul ve tamamla', xp:25},
+  {id:'sc', emoji:'🔢', title:'Hece Say', sub:'Kelimede kaç hece var?', xp:20},
+  {id:'wm', emoji:'🃏', title:'Kelime Eşleştir', sub:'Kelimeyi resimiyle eşleştir', xp:30},
+  {id:'mem', emoji:'🧠', title:'Hafıza Oyunu', sub:'Aynı kartları bul ve eşleştir', xp:35},
+  {id:'ws', emoji:'📦', title:'Hece Sırala', sub:'Heceleri doğru sıraya koy', xp:25},
+  {id:'fv', emoji:'🔴', title:'Ünlü Bul', sub:'Cümledeki ünlü harfleri bul', xp:20},
+  {id:'dc', emoji:'🎵', title:'Dikte', sub:'Sesli kelimeyi dinle ve yaz', xp:35},
+  {id:'wc', emoji:'🧩', title:'Boşluğu Doldur', sub:'Cümledeki boşluğa doğru kelimeyi seç', xp:25},
+];
+
+// ---- QUIZ ----
+const QDATA = [
+  // Hece sayma
+  {q:'"Ma-sa" kelimesi kaç heceli?', opts:['1 hece','2 hece','3 hece','4 hece'], cor:1},
+  {q:'"A-ra-ba" kelimesi kaç heceli?', opts:['1 hece','2 hece','3 hece','4 hece'], cor:2},
+  {q:'"Ka-le-bek" kaç heceli?', opts:['1 hece','2 hece','3 hece','4 hece'], cor:2},
+  {q:'"Su" kelimesi kaç heceli?', opts:['1 hece','2 hece','3 hece','4 hece'], cor:0},
+  {q:'"Te-le-fon" kaç heceli?', opts:['1 hece','2 hece','3 hece','4 hece'], cor:2},
+  // Ünlü-ünsüz
+  {q:'Hangisi ünlü (sesli) harftir?', opts:['K','M','E','T'], cor:2},
+  {q:'Hangisi ünsüz (sessiz) harftir?', opts:['A','İ','S','O'], cor:2},
+  {q:'Türkçede kaç ünlü harf vardır?', opts:['6','7','8','9'], cor:2},
+  {q:'"Okul" kelimesinde kaç ünlü harf var?', opts:['1','2','3','4'], cor:1},
+  {q:'"Araba" kelimesinde kaç ünlü harf var?', opts:['1','2','3','4'], cor:2},
+  // Hece birleştirme
+  {q:'"BA" + "BA" = hangi kelime?', opts:['Mama','Baba','Nene','Dede'], cor:1},
+  {q:'"KE" + "Dİ" = hangi kelime?', opts:['Kedi','Balık','Kuş','Fare'], cor:0},
+  {q:'"DE" + "NİZ" = hangi kelime?', opts:['Gökyüzü','Nehir','Deniz','Orman'], cor:2},
+  {q:'"MA" + "SA" = hangi kelime?', opts:['Sandalye','Masa','Kapı','Pencere'], cor:1},
+  {q:'"GÜ" + "NEŞ" = hangi kelime?', opts:['Ay','Yıldız','Bulut','Güneş'], cor:3},
+  // Cümle kurma
+  {q:'Hangi cümle doğru kurulmuştur?', opts:['Top Ali atar.','Ali top atar.','Atar Ali top.','Top atar Ali.'], cor:1},
+  {q:'Hangi cümle doğru kurulmuştur?', opts:['Okul gider Ali.','Gider Ali okul.','Ali okula gider.','Okula Ali gider mi.'], cor:2},
+  // Kelime tamamlama
+  {q:'"Ka___" — Boşluğa ne gelir? (Bir ders aracı)', opts:['pı','lem','pı','nat'], cor:1},
+  {q:'"___neş" — Başa ne gelir? (Gökyüzünde parlayan)', opts:['Gü','Ay','Yıl','Bu'], cor:0},
+  // Zıt anlam
+  {q:'"Büyük" kelimesinin zıt anlamlısı hangisi?', opts:['Ağır','Kısa','Küçük','Uzun'], cor:2},
+  {q:'"Açık" kelimesinin zıt anlamlısı hangisi?', opts:['Dar','Kapalı','Parlak','Sıcak'], cor:1},
+  // Doğru heceleme
+  {q:'"Elma" kelimesinin doğru heceli yazımı hangisi?', opts:['el-ma','elm-a','e-lma','elma'], cor:0},
+  {q:'"Okul" kelimesinin doğru heceli yazımı hangisi?', opts:['ok-ul','o-kul','oku-l','okul'], cor:1},
+  {q:'"Kitap" kelimesinin doğru heceli yazımı hangisi?', opts:['kita-p','kit-ap','ki-tap','k-itap'], cor:2},
+  // Harf sayma
+  {q:'"Anne" kelimesinde kaç harf vardır?', opts:['3','4','5','6'], cor:1},
+  {q:'"Güneş" kelimesinde kaç harf vardır?', opts:['4','5','6','7'], cor:1},
+  {q:'"Su" kelimesinde kaç harf vardır?', opts:['1','2','3','4'], cor:1},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const ST = {
+  name:'', avatar:'🦁', age:'6-8',
+  xp:0, streak:1,
+  learnedL:[], learnedS:[],
+  sentDone:0, actsDone:0,
+  selAv:'🦁', selAge:'6-8',
+  selCons:null, selVow:null,
+  sentIdx:0, sentPlaced:[],
+  qIdx:0, qScore:0,
+  readLv:0};
+const COLS=['#3B82F6','#FF6B35','#8B5CF6','#10B981'];
+
+// ============================================================
+// AUTH
+// ============================================================
+function authSwitch(btn, tab){
+  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('panel-login').classList.toggle('on', tab==='login');
+  document.getElementById('panel-register').classList.toggle('on', tab==='register');
+}
+function pickAv(el,av){
+  document.querySelectorAll('.av-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); ST.selAv=av;
+}
+function pickAge(el,age){
+  document.querySelectorAll('.age-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); ST.selAge=age;
+}
+function doLogin(){
+  const e=document.getElementById('l-email').value.trim();
+  const p=document.getElementById('l-pw').value.trim();
+  if(!e||!p){showToast('Lütfen tüm alanları doldur!');return;}
+  ST.name=e.split('@')[0]; ST.avatar='🦁';
+  launch();
+}
+function doGoogle(){ST.name='Demo Kullanıcı';ST.avatar='🐻';launch();}
+function doRegister(){
+  const n=document.getElementById('r-name').value.trim();
+  const e=document.getElementById('r-email').value.trim();
+  const p=document.getElementById('r-pw').value.trim();
+  if(!n||!e||!p){showToast('Tüm alanları doldurun!');return;}
+  if(p.length<6){showToast('Şifre en az 6 karakter olmalı!');return;}
+  ST.name=n; ST.avatar=ST.selAv; ST.age=ST.selAge;
+  launch();
+}
+function launch(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('tb-av').textContent=ST.avatar;
+  document.getElementById('tb-name').textContent=ST.name;
+  document.getElementById('hero-greet').textContent='Merhaba, '+ST.name+'! 👋';
+  updXP();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sc-'+id).classList.add('on');
+  document.querySelectorAll('.bnav').forEach(b=>b.classList.remove('on'));
+  const BM={dashboard:0,alphabet:1,library:2,activities:3,progress:4};
+  if(BM[id]!==undefined) document.querySelectorAll('.bnav')[BM[id]].classList.add('on');
+  document.getElementById('scroll-area').scrollTop=0;
+  const inits={alphabet:initAlpha,syllable:initSyl,reading:initRead,sentences:initSent,activities:initActs,quiz:initQuiz,progress:initProg,library:initLibrary};
+  if(inits[id]) inits[id]();
+}
+
+// ============================================================
+// XP & UTILS
+// ============================================================
+function addXP(n,emoji='⭐',title='Harika!'){
+  ST.xp+=n; updXP();
+  showPop(emoji,title,'+'+n+' XP kazandın!');
+}
+function updXP(){
+  document.getElementById('xp-num').textContent=ST.xp;
+  document.getElementById('dsh-X').textContent=ST.xp;
+  const pct=Math.min(100,(ST.xp%300)/300*100);
+  document.getElementById('xp-bar').style.width=pct+'%';
+  const LVS=[{m:0,l:'Başlangıç'},{m:150,l:'Temel'},{m:400,l:'Gelişiyor'},{m:700,l:'Orta'},{m:1100,l:'İleri'}];
+  const lv=[...LVS].reverse().find(x=>ST.xp>=x.m)||LVS[0];
+  document.getElementById('tb-lvl').textContent=lv.l;
+}
+function showPop(emoji,title,msg){
+  document.getElementById('pop-emoji').textContent=emoji;
+  document.getElementById('pop-title').textContent=title;
+  document.getElementById('pop-msg').textContent=msg;
+  document.getElementById('xp-overlay').classList.add('show');
+}
+function closePop(){document.getElementById('xp-overlay').classList.remove('show');}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function say(text){
+  if(!('speechSynthesis' in window)){showToast('🔊 '+text);return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='tr-TR'; u.rate=0.78; u.pitch=1.05;
+  speechSynthesis.speak(u);
+}
+function hlLetter(word,h){
+  const i=word.toUpperCase().indexOf(h.toUpperCase());
+  if(i<0)return word;
+  return word.slice(0,i)+'<span class="hl">'+word.slice(i,i+h.length)+'</span>'+word.slice(i+h.length);
+}
+
+// ============================================================
+// ALPHABET
+// ============================================================
+function initAlpha(){renderAlpha('all');}
+function alphaTab(btn,f){
+  document.querySelectorAll('#sc-alphabet .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderAlpha(f);
+}
+function renderAlpha(f){
+  let ls=LETTERS;
+  if(f==='vowels') ls=LETTERS.filter(l=>l.t==='v');
+  if(f==='consonants') ls=LETTERS.filter(l=>l.t==='c');
+  if(f==='learned') ls=LETTERS.filter(l=>ST.learnedL.includes(l.l));
+  document.getElementById('alpha-grid').innerHTML=ls.map(l=>`
+    <button class="alpha-btn ${ST.learnedL.includes(l.l)?'learned':''}" onclick="showLetter('${l.l}')">
+      <div class="ab">${l.l}</div>
+      <div class="asml">${l.l.toLowerCase()}</div>
+      <div class="atag">${l.t==='v'?'🔴 Ünlü':'🔵 Ünsüz'}</div>
+    </button>`).join('');
+  document.getElementById('ldet-box').innerHTML='';
+}
+function showLetter(letter){
+  const d = LETTERS.find(l => l.l === letter);
+  document.querySelectorAll('.alpha-btn').forEach(b => b.classList.remove('sel'));
+
+  const COLS4 = ['#3B82F6','#FF6B35','#8B5CF6','#10B981'];
+
+  // Build heceli metin lines for this letter
+  const texts = LETTER_TEXTS[letter] || [];
+
+  const textsHTML = texts.map((txt, ti) => {
+    const linesHTML = txt.lines.map(line =>
+      '<div style="margin-bottom:12px;">' +
+      line.map(word =>
+        '<span class="rword" onclick="say(\'' + word.w.replace(/[.,!?']/g,'') + '\')">' +
+        word.s.map((h, si) =>
+          '<span style="color:' + COLS4[(word.c[si]-1)%4] + ';font-weight:800;">' + h + '</span>'
+        ).join('<span class="hdot">·</span>') +
+        '</span> '
+      ).join('') +
+      '</div>'
+    ).join('');
+
+    return `<div style="background:var(--card2);border-radius:var(--r-sm);padding:16px;margin-bottom:12px;border-left:3px solid var(--orange);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <span style="font-size:14px;font-weight:800;">${txt.title}</span>
+        <div style="display:flex;gap:7px;">
+          <button class="btn btn-blue btn-sm" onclick="say('${txt.plain}')">🔊 Dinle</button>
+          <button class="btn btn-orange btn-sm" id="ltbtn-${ti}" onclick="markLetterText(this,'${letter}')">✅ Okudum</button>
+        </div>
+      </div>
+      <div class="read-box" style="font-size:20px;line-height:2.4;">${linesHTML}</div>
+      <p style="font-size:11px;color:var(--ink3);margin-top:8px;">💡 Kelimeye tıkla sesini duy · <span style="color:var(--orange);font-weight:700;">${letter}</span> harfli sözcükler kalın renklidir</p>
+    </div>`;
+  }).join('');
+
+  document.getElementById('ldet-box').innerHTML = `
+    <div class="ldet">
+      <!-- Header -->
+      <div class="ldet-top">
+        <div>
+          <div class="ldet-big">${d.l}</div>
+          <div class="ldet-sm">${d.l.toLowerCase()}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <div style="font-size:12px;color:var(--ink2);">${d.t==='v'?'🔴 Ünlü harf':'🔵 Ünsüz harf'}</div>
+          <button class="sound-btn" onclick="say('${d.l.toLowerCase()}')">🔊</button>
+          <div style="font-size:11px;color:var(--ink3);">Sesini duy!</div>
+        </div>
+      </div>
+
+      <!-- 6 Example Words -->
+      <div style="margin-top:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:10px;">"${d.l}" ile başlayan kelimeler — tıkla dinle!</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${d.ex.map(e => `
+            <div class="ex-card" onclick="say('${e.w}')" style="cursor:pointer;">
+              <div class="ex-emoji">${e.e}</div>
+              <div class="ex-word">${hlLetter(e.w,e.h)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div style="margin:18px 0;border-top:1.5px dashed var(--border2);"></div>
+
+      <!-- Reading Texts -->
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:14px;">
+          📖 "${d.l}" Harfi ile Okuma Metinleri
+          <span style="font-size:11px;font-weight:500;color:var(--ink3);margin-left:6px;">— Her renk bir hece</span>
+        </div>
+        ${textsHTML || '<div style="color:var(--ink3);font-size:13px;padding:12px;">Bu harf için metin yakında eklenecek.</div>'}
+      </div>
+
+      <!-- Learn Button -->
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn btn-orange" style="width:100%;" onclick="learnLetter('${d.l}')">✅ Öğrendim! +20 XP</button>
+      </div>
+    </div>`;
+
+  document.getElementById('ldet-box').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function markLetterText(btn, letter){
+  if(btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '✅ Okundu!';
+  btn.style.opacity = '0.7';
+  showToast('📖 Harika! Metni okudun!');
+}
+
+function learnLetter(l){
+  if(!ST.learnedL.includes(l)){ST.learnedL.push(l);document.getElementById('dsh-L').textContent=ST.learnedL.length;}
+  addXP(20,'🔤','"'+l+'" Harfi Öğrenildi!');
+  renderAlpha('all'); showLetter(l);
+}
+
+// ============================================================
+// SYLLABLE
+// ============================================================
+function initSyl(){
+  document.getElementById('cons-row').innerHTML=CONS.map(c=>`<button class="syl-btn" onclick="pickCons('${c}',this)">${c}</button>`).join('');
+  document.getElementById('vow-row').innerHTML=VOWELS.map(v=>`<button class="syl-btn vowel-btn" onclick="pickVow('${v}',this)">${v}</button>`).join('');
+  ST.selCons=null; ST.selVow=null; updSyl();
+  renderSylWords(); renderSylMatch();
+}
+function pickCons(c,btn){
+  document.querySelectorAll('#cons-row .syl-btn').forEach(b=>b.classList.remove('picked'));
+  ST.selCons=c; btn.classList.add('picked'); updSyl();
+}
+function pickVow(v,btn){
+  document.querySelectorAll('#vow-row .syl-btn').forEach(b=>b.classList.remove('picked'));
+  ST.selVow=v; btn.classList.add('picked'); updSyl();
+}
+function updSyl(){
+  const res=document.getElementById('syl-result');
+  const ex=document.getElementById('syl-ex');
+  if(!res)return;
+  if(ST.selCons&&ST.selVow){
+    const s=ST.selCons+ST.selVow;
+    res.textContent=s; res.style.color='var(--green)';
+    const ws=SYLMAP[s]||SYLMAP[ST.selCons+'A']||[];
+    ex.innerHTML=ws.length?'Örnek: <strong style="color:var(--blue);">'+ws.join(', ')+'</strong>':'';
+    say(s);
+  } else {
+    res.textContent=(ST.selCons||'_')+' + '+(ST.selVow||'_')+' = ?';
+    res.style.color='var(--ink3)'; ex.innerHTML='';
+  }
+}
+function learnSyl(){
+  if(!ST.selCons||!ST.selVow){showToast('Önce harf seç!');return;}
+  const s=ST.selCons+ST.selVow;
+  if(!ST.learnedS.includes(s)){ST.learnedS.push(s);document.getElementById('dsh-S').textContent=ST.learnedS.length;}
+  addXP(15,'🔵','Hece Öğrenildi!');
+}
+function sylTab(btn,t){
+  document.querySelectorAll('#sc-syllable .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('syl-build').style.display=t==='build'?'block':'none';
+  document.getElementById('syl-words').style.display=t==='words'?'block':'none';
+  document.getElementById('syl-match').style.display=t==='match'?'block':'none';
+}
+function renderSylWords(){
+  const el=document.getElementById('syl-word-list'); if(!el)return;
+  el.innerHTML=SYL_WORDS.map(w=>`
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:12px;cursor:pointer;flex-wrap:wrap;" onclick="say('${w.w}');showToast('🔊 ${w.w} — ${w.s.length} hece')">
+      ${w.s.map((h,i)=>`<span style="background:${COLS[i%4]}22;color:${COLS[i%4]};border:1.5px solid ${COLS[i%4]}55;padding:5px 10px;border-radius:7px;font-size:19px;font-weight:800;">${h}</span>${i<w.s.length-1?'<span style="color:var(--ink3);font-size:13px;">·</span>':''}`).join('')}
+      <span style="font-size:11px;color:var(--ink3);margin-left:4px;">(${w.s.length} hece)</span>
+    </div>`).join('');
+}
+let _smSel={side:null,idx:null,val:null,pair:null};
+function renderSylMatch(){
+  const el=document.getElementById('syl-match-area'); if(!el)return;
+  const pairs=[['MA','sa'],['KA','lem'],['DE','niz'],['KE','di'],['BA','lık'],['GÜ','neş'],['YA','prak'],['BE','bek']];
+  _smSel={side:null,idx:null,val:null,pair:null};
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:360px;">
+    ${pairs.map((p,i)=>`<button class="match-tile" id="sml-${i}" onclick="smClick('l',${i},'${p[0]}','${p[1]}')">${p[0]}</button>
+    <button class="match-tile" id="smr-${i}" onclick="smClick('r',${i},'${p[1]}','${p[0]}')">${p[1]}</button>`).join('')}
+  </div><div id="sm-msg" style="margin-top:12px;"></div>`;
+}
+function smClick(side,idx,val,pair){
+  const sid=side==='l'?'sml':'smr';
+  if(_smSel.side===null){
+    _smSel={side,idx,val,pair};
+    document.getElementById(sid+'-'+idx).classList.add('picked');
+  } else {
+    const ob=document.getElementById(sid+'-'+idx);
+    if(_smSel.pair===val){
+      document.getElementById((_smSel.side==='l'?'sml':'smr')+'-'+_smSel.idx).classList.add('matched');
+      ob.classList.add('matched');
+      say(_smSel.val+val); addXP(10,'🔵','Eşleşti!');
+    } else {
+      ob.classList.add('wrong'); setTimeout(()=>ob.classList.remove('wrong'),500);
+      document.getElementById((_smSel.side==='l'?'sml':'smr')+'-'+_smSel.idx).classList.remove('picked');
+      showToast('❌ Tekrar dene!');
+    }
+    _smSel={side:null,idx:null,val:null,pair:null};
+    document.querySelectorAll('.match-tile').forEach(t=>t.classList.remove('picked'));
+  }
+}
+
+// ============================================================
+// READING
+// ============================================================
+function initRead(){
+  document.getElementById('read-pills').innerHTML=RLEVELS.map((lv,i)=>
+    `<button class="pill ${i===0?'on':''}" onclick="setRL(this,${i})">${lv.icon} ${lv.label}</button>`).join('');
+  showRL(0);
+}
+function setRL(btn,i){
+  document.querySelectorAll('#read-pills .pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); showRL(i); ST.readLv=i;
+}
+function showRL(i){
+  const lv=RLEVELS[i];
+  document.getElementById('read-content').innerHTML=lv.texts.map((txt,ti)=>`
+    <div class="card" style="margin-bottom:16px;border-left:4px solid ${lv.col};">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <h3 style="font-size:16px;font-weight:900;">${txt.title}</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-blue btn-sm" onclick="say('${txt.plain.replace(/'/g,"\'")}')">🔊 Dinle</button>
+          <button class="btn btn-orange btn-sm" id="rbtn-${i}-${ti}" onclick="markRead(this,${i},${ti})">✅ Okudum +40XP</button>
+        </div>
+      </div>
+      <div class="read-box">
+        ${txt.lines.map(line=>`<div style="margin-bottom:13px;">${line.map(word=>`<span class="rword" onclick="say('${word.w.replace(/[.,!?']/g,'')}')">${word.s.map((h,si)=>`<span style="color:${COLS[(word.c[si]-1)%4]};font-weight:800;">${h}</span>`).join('<span class="hdot">·</span>')}</span> `).join('')}</div>`).join('')}
+      </div>
+      <p style="font-size:11px;color:var(--ink3);margin-top:10px;">💡 Kelimeye tıkla sesini duy · Noktada dur nefes al</p>
+    </div>`).join('');
+}
+function markRead(btn,lv,ti){
+  if(btn.disabled)return;
+  btn.disabled=true; btn.textContent='✅ Okundu!';
+  addXP(40,'📖','Metin Okundu!');
+}
+
+// ============================================================
+// SENTENCES
+// ============================================================
+function initSent(){ST.sentIdx=0;renderSent();}
+function renderSent(){
+  const s=SENTS[ST.sentIdx%SENTS.length];
+  ST.sentPlaced=[];
+  const all=[...s.words,...s.decoys].sort(()=>Math.random()-.5);
+  document.getElementById('sent-area').innerHTML=`
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-size:44px;text-align:center;margin-bottom:12px;">${s.e}</div>
+      <p style="font-size:13px;color:var(--ink2);text-align:center;margin-bottom:14px;">Kelimelere tıklayarak doğru cümleyi oluştur!</p>
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px;">Cümlen:</div>
+      <div class="sdrop" id="sdrop"><span class="sdrop-hint" id="sph">Buraya kelime ekle...</span></div>
+      <div style="font-size:12px;font-weight:700;color:var(--ink2);margin:14px 0 6px;">Kelimeler:</div>
+      <div class="wbank" id="wbank">
+        ${all.map(w=>`<button class="wchip avail" onclick="placeW('${w}',this)">${w}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-orange" onclick="checkSent()">✅ Kontrol Et</button>
+        <button class="btn btn-ghost" onclick="clearSent()">🗑️ Temizle</button>
+        <button class="btn btn-ghost" onclick="nextSent()">⏭️ Sonraki</button>
+      </div>
+      <div id="sent-res" style="margin-top:12px;"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">📚 Tüm Örnek Cümleler</div>
+      ${SENTS.map(s=>`<div style="padding:9px 12px;background:var(--card2);border-radius:var(--r-sm);font-size:15px;font-weight:700;margin-bottom:8px;cursor:pointer;" onclick="say('${s.words.join(' ')}')">${s.e} ${s.words.join(' ')}</div>`).join('')}
+    </div>`;
+}
+function placeW(w,btn){
+  ST.sentPlaced.push(w); btn.classList.replace('avail','used');
+  document.getElementById('sph').style.display='none';
+  const chip=document.createElement('button');
+  chip.className='wchip placed'; chip.textContent=w;
+  chip.onclick=()=>{ST.sentPlaced=ST.sentPlaced.filter(x=>x!==w);chip.remove();btn.classList.replace('used','avail');if(!ST.sentPlaced.length)document.getElementById('sph').style.display='';};
+  document.getElementById('sdrop').appendChild(chip);
+  say(w);
+}
+function checkSent(){
+  const s=SENTS[ST.sentIdx%SENTS.length];
+  const ok=JSON.stringify(ST.sentPlaced)===JSON.stringify(s.words);
+  document.getElementById('sent-res').innerHTML=ok
+    ?'<div class="badge-ok">✅ Mükemmel! Cümle doğru!</div>'
+    :`<div class="badge-err">❌ Tekrar dene! Doğrusu: <strong>${s.words.join(' ')}</strong></div>`;
+  if(ok){ST.sentDone++;document.getElementById('dsh-C').textContent=ST.sentDone;addXP(30,'🧩','Cümle Kuruldu!');setTimeout(nextSent,1800);}
+}
+function clearSent(){
+  ST.sentPlaced=[];
+  document.getElementById('sdrop').innerHTML='<span class="sdrop-hint" id="sph">Buraya kelime ekle...</span>';
+  document.querySelectorAll('.wchip.used').forEach(c=>c.classList.replace('used','avail'));
+  document.getElementById('sent-res').innerHTML='';
+}
+function nextSent(){ST.sentIdx++;renderSent();}
+
+// ============================================================
+// ACTIVITIES
+// ============================================================
+function initActs(){
+  document.getElementById('act-list-view').style.display='block';
+  document.getElementById('act-game-view').style.display='none';
+  document.getElementById('act-grid').innerHTML=ACTS.map(a=>`
+    <div class="act-card" onclick="launchAct('${a.id}')">
+      <div class="act-emoji">${a.emoji}</div>
+      <div class="act-title">${a.title}</div>
+      <div class="act-sub">${a.sub}</div>
+      <div class="act-xp">+${a.xp} XP</div>
+    </div>`).join('');
+}
+function launchAct(id){
+  document.getElementById('act-list-view').style.display='none';
+  const gv=document.getElementById('act-game-view');
+  gv.style.display='block';
+  const back='<button class="back-btn" onclick="initActs()">← Etkinliklere Dön</button>';
+  gv.innerHTML=back+'<div id="act-inner"></div>';
+  const el=document.getElementById('act-inner');
+  ({ml:actML,sc:actSC,wm:actWM,mem:actMEM,ws:actWS,fv:actFV,dc:actDC,wc:actWC}[id]||function(){})(el);
+}
+function actFinish(el,sc,total,label){
+  el.innerHTML=`<div class="card" style="text-align:center;padding:32px;">
+    <div style="font-size:52px;margin-bottom:12px;">${sc===total?'🎉':sc>=total*.7?'👍':'💪'}</div>
+    <h3 style="font-size:22px;font-weight:900;color:var(--orange);">${sc}/${total} Doğru!</h3>
+    <p style="color:var(--ink2);margin:10px 0 18px;">${sc===total?'Mükemmel! Tüm soruları doğru yaptın!':sc>=total*.7?'Çok iyi! Biraz daha pratik yap.':'Devam et, pratik mükemmelleştirir!'}</p>
+    <button class="btn btn-orange" onclick="initActs()">← Etkinliklere Dön</button>
+  </div>`;
+  if(sc>0) addXP(sc*5,ACTS.find(a=>a.id===label)||'🎮','Etkinlik Tamamlandı!');
+}
+
+// ACT 1: Missing Letter
+function actML(el){
+  const qs=[{w:'KA_EM',ans:'L'},{w:'DE_İZ',ans:'N'},{w:'GÜ_EŞ',ans:'N'},{w:'E_MEK',ans:'K'},{w:'MA_A',ans:'S'},{w:'Kİ_AP',ans:'T'},{w:'BA_IK',ans:'L'},{w:'YI_DIZ',ans:'L'}];
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=qs.length){actFinish(el,sc,qs.length,'ml');return;}
+    const q=qs[qi];
+    const correct=q.ans;
+    const pool='ABCDEFGHIJKLMNOPRSTUVYZ'.split('').filter(c=>c!==correct);
+    const opts=[correct,...pool.sort(()=>Math.random()-.5).slice(0,7)].sort(()=>Math.random()-.5);
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soru ${qi+1}/${qs.length} — Eksik harfi bul</p>
+      <div style="font-size:40px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:18px;color:var(--orange);">${q.w}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${opts.map(o=>`<button class="q-opt" style="text-align:center;font-size:22px;" onclick="ansML(this,'${o}','${correct}')">${o}</button>`).join('')}</div>
+    </div>`;
+  }
+  window.ansML=(btn,c,a)=>{document.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');if(c===a){btn.classList.add('cor');sc++;showToast('✅ Doğru!');}else{btn.classList.add('wrn');document.querySelectorAll('.q-opt').forEach(b=>{if(b.textContent===a)b.classList.add('cor');});}qi++;setTimeout(render,900);};
+  render();
+}
+
+// ACT 2: Syllable Count
+function actSC(el){
+  const qs=[{w:'el',n:1},{w:'masa',n:2},{w:'araba',n:3},{w:'öğretmen',n:3},{w:'su',n:1},{w:'telefon',n:3},{w:'kelebek',n:3},{w:'bardak',n:2}];
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=qs.length){actFinish(el,sc,qs.length,'sc');return;}
+    const q=qs[qi];
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soru ${qi+1}/${qs.length}</p>
+      <div style="font-size:36px;font-weight:900;text-align:center;margin-bottom:10px;color:var(--orange);">${q.w}</div>
+      <div style="text-align:center;margin-bottom:16px;"><button class="btn btn-blue btn-sm" onclick="say('${q.w}')">🔊 Dinle</button></div>
+      <p style="text-align:center;font-size:14px;font-weight:700;margin-bottom:12px;">Kaç hece?</p>
+      <div style="display:flex;gap:10px;justify-content:center;">${[1,2,3,4].map(n=>`<button class="q-opt" style="width:56px;text-align:center;font-size:20px;" onclick="ansSC(this,${n},${q.n})">${n}</button>`).join('')}</div>
+    </div>`;
+  }
+  window.ansSC=(btn,c,a)=>{document.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');if(c===a){btn.classList.add('cor');sc++;showToast('✅ '+a+' hece!');}else{btn.classList.add('wrn');document.querySelectorAll('.q-opt').forEach(b=>{if(parseInt(b.textContent)===a)b.classList.add('cor');});}qi++;setTimeout(render,900);};
+  render();
+}
+
+// ACT 3: Word Match
+function actWM(el){
+  const pairs=[{e:'🍎',w:'Elma'},{e:'🐱',w:'Kedi'},{e:'🌊',w:'Deniz'},{e:'✏️',w:'Kalem'},{e:'☀️',w:'Güneş'},{e:'🌷',w:'Lale'}];
+  const sW=[...pairs].sort(()=>Math.random()-.5);
+  const sE=[...pairs].sort(()=>Math.random()-.5);
+  let matched=new Set(),selE=null,selW=null;
+  function render(){
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Resmi kelimesiyle eşleştir!</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div id="ecol">${sE.map((p,i)=>`<button class="match-tile ${matched.has(p.w)?'matched':''}" id="em-${i}" onclick="pickE(${i},'${p.w}')" style="font-size:28px;">${p.e}</button>`).join('')}</div>
+        <div id="wcol">${sW.map((p,i)=>`<button class="match-tile ${matched.has(p.w)?'matched':''}" id="wm-${i}" onclick="pickW(${i},'${p.w}')">${p.w}</button>`).join('')}</div>
+      </div>
+      <div id="wm-msg" style="margin-top:12px;"></div></div>`;
+  }
+  window.pickE=(i,w)=>{selE={i,w};document.querySelectorAll('#ecol .match-tile').forEach(b=>b.classList.remove('picked'));if(!matched.has(w))document.getElementById('em-'+i).classList.add('picked');if(selW)tryM();};
+  window.pickW=(i,w)=>{selW={i,w};document.querySelectorAll('#wcol .match-tile').forEach(b=>b.classList.remove('picked'));if(!matched.has(w))document.getElementById('wm-'+i).classList.add('picked');if(selE)tryM();};
+  function tryM(){
+    if(selE&&selW){
+      if(selE.w===selW.w){
+        matched.add(selE.w);showToast('✅ Eşleşti!');addXP(5);
+        if(matched.size===pairs.length){el.querySelector('#wm-msg').innerHTML='<div class="badge-ok">🎉 Tümünü eşleştirdin! +30 XP</div>';addXP(30,'🃏','Kelime Eşleştirme!');}
+      } else {
+        const eb=document.getElementById('em-'+selE.i);
+        eb.classList.add('wrong');setTimeout(()=>eb.classList.remove('wrong'),400);showToast('❌ Tekrar dene!');
+      }
+      selE=null;selW=null;render();
+    }
+  }
+  render();
+}
+
+// ACT 4: First Letter
+// ACT 4: HAFIZA OYUNU — kart çevirme eşleştirme
+function actMEM(el){
+  const allPairs=[
+    {a:'🍎',b:'Elma'},{a:'🐱',b:'Kedi'},{a:'🌷',b:'Lale'},
+    {a:'🌊',b:'Deniz'},{a:'☀️',b:'Güneş'},{a:'✏️',b:'Kalem'},
+    {a:'🍌',b:'Muz'},{a:'🏠',b:'Ev'},{a:'🐝',b:'Arı'},
+    {a:'🌙',b:'Ay'},{a:'⭐',b:'Yıldız'},{a:'🍇',b:'Üzüm'},
+  ];
+  // Pick 6 random pairs
+  const pairs=[...allPairs].sort(()=>Math.random()-.5).slice(0,6);
+  // Create 12 cards (emoji + word interleaved, shuffled)
+  let cards=[];
+  pairs.forEach((p,i)=>{
+    cards.push({id:i,type:'emoji',val:p.a,label:p.a});
+    cards.push({id:i,type:'word', val:p.b,label:p.b});
+  });
+  cards=cards.sort(()=>Math.random()-.5);
+
+  let flipped=[], matched=new Set(), moves=0, locked=false;
+
+  function render(){
+    el.innerHTML=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:14px;font-weight:800;">🧠 Hafıza Oyunu</span>
+        <span style="font-size:13px;color:var(--ink2);">Hamle: <strong id="mem-moves">${moves}</strong> · Eşleşen: <strong>${matched.size/2|0}/${pairs.length}</strong></span>
+      </div>
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Emoji ile kelimesini eşleştir! Kartlara tıkla.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="mem-grid">
+        ${cards.map((c,idx)=>{
+          const isFlipped=flipped.includes(idx)||matched.has(c.id);
+          const isMatched=matched.has(c.id);
+          return `<button
+            id="mc-${idx}"
+            onclick="memFlip(${idx})"
+            style="
+              height:64px;border-radius:10px;border:2px solid ${isMatched?'var(--green)':isFlipped?'var(--orange)':'var(--border2)'};
+              background:${isMatched?'var(--green-lt)':isFlipped?'var(--orange-lt)':'var(--card2)'};
+              font-size:${c.type==='emoji'?'28px':'13px'};font-weight:800;
+              color:${isMatched?'var(--green)':isFlipped?'var(--ink)':'transparent'};
+              cursor:${isMatched||locked?'default':'pointer'};
+              transition:all .25s;
+            "
+          >${isFlipped||isMatched?c.label:'?'}</button>`;
+        }).join('')}
+      </div>
+      ${matched.size===pairs.length*2?`<div class="badge-ok" style="margin-top:16px;justify-content:center;">🎉 Tebrikler! ${moves} hamlede tamamladın!</div><button class="btn btn-orange" style="width:100%;margin-top:10px;justify-content:center;" onclick="actMEM(document.getElementById('act-inner'))">🔄 Yeni Oyun</button>`:''}
+    </div>`;
+  }
+
+  window.memFlip=function(idx){
+    if(locked||flipped.includes(idx)||matched.has(cards[idx].id)) return;
+    flipped.push(idx);
+    moves++;
+    document.getElementById('mem-moves').textContent=moves;
+    // Re-render just this card
+    const btn=document.getElementById('mc-'+idx);
+    const c=cards[idx];
+    btn.style.background='var(--orange-lt)';
+    btn.style.borderColor='var(--orange)';
+    btn.style.color='var(--ink)';
+    btn.textContent=c.label;
+    if(flipped.length===2){
+      locked=true;
+      const [i1,i2]=flipped;
+      if(cards[i1].id===cards[i2].id && cards[i1].type!==cards[i2].type){
+        // Match!
+        matched.add(cards[i1].id);
+        setTimeout(()=>{flipped=[];locked=false;render();
+          if(matched.size===pairs.length*2){addXP(35,'🧠','Hafıza Oyunu Tamamlandı!');}
+        },600);
+      } else {
+        // No match — flip back
+        setTimeout(()=>{
+          const b1=document.getElementById('mc-'+i1);
+          const b2=document.getElementById('mc-'+i2);
+          if(b1){b1.style.background='var(--red-lt)';b1.style.borderColor='var(--red)';}
+          if(b2){b2.style.background='var(--red-lt)';b2.style.borderColor='var(--red)';}
+          setTimeout(()=>{flipped=[];locked=false;render();},500);
+        },600);
+      }
+    }
+  };
+  render();
+}
+
+// ACT 5: Syllable Sort
+function actWS(el){
+  const qs=[{w:'masa',s:['ma','sa']},{w:'araba',s:['a','ra','ba']},{w:'kalem',s:['ka','lem']},{w:'defter',s:['def','ter']},{w:'güneş',s:['gü','neş']},{w:'pencere',s:['pen','ce','re']}];
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=qs.length){actFinish(el,sc,qs.length,'ws');return;}
+    const q=qs[qi];
+    const shuf=[...q.s].sort(()=>Math.random()-.5);
+    let placed=[];
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soru ${qi+1}/${qs.length} — Heceleri doğru sırala: <strong style="color:var(--orange);">${q.w}</strong></p>
+      <button class="btn btn-blue btn-sm" style="margin-bottom:14px;" onclick="say('${q.w}')">🔊 Dinle</button>
+      <div class="sdrop" id="ws-drop" style="margin-bottom:12px;"><span class="sdrop-hint" id="wsph">Hecelere tıkla...</span></div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;" id="ws-bank">
+        ${shuf.map((s,i)=>`<button class="wchip avail" id="wsb-${i}" onclick="wsPick(this,'${s}',${i})">${s}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-orange" onclick="wsCheck(${JSON.stringify(q.s).replace(/"/g,"'")})">✅ Kontrol</button>
+        <button class="btn btn-ghost" onclick="actWS(document.getElementById('act-inner'))">🔄 Sıfırla</button>
+      </div>
+      <div id="ws-res" style="margin-top:10px;"></div></div>`;
+    window.wsPick=(btn,s,idx)=>{placed.push(s);btn.classList.replace('avail','used');document.getElementById('wsph').style.display='none';const c=document.createElement('button');c.className='wchip placed';c.textContent=s;c.onclick=()=>{placed=placed.filter(x=>x!==s);c.remove();btn.classList.replace('used','avail');if(!placed.length)document.getElementById('wsph').style.display='';};document.getElementById('ws-drop').appendChild(c);};
+    window.wsCheck=(ans)=>{const ok=JSON.stringify(placed)===JSON.stringify(ans);document.getElementById('ws-res').innerHTML=ok?'<div class="badge-ok">✅ Doğru! '+ans.join('·')+'</div>':'<div class="badge-err">❌ Doğrusu: '+ans.join('·')+'</div>';if(ok){sc++;}qi++;setTimeout(render,1100);};
+  }
+  render();
+}
+
+// ACT 6: Find Vowels
+function actFV(el){
+  const qs=[{sent:'Ali top atar.',vc:3},{sent:'Güneş doğuyor.',vc:5},{sent:'Kedi uyuyor.',vc:5},{sent:'Baba eve geldi.',vc:6}];
+  const VS=new Set([...'aeıiouöüAEIİOÖUÜ']);
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=qs.length){actFinish(el,sc,qs.length,'fv');return;}
+    const q=qs[qi];
+    const letters=[...q.sent];
+    window._fvSel=new Set();
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soru ${qi+1}/${qs.length} — Ünlü harflere tıkla!</p>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;font-size:24px;font-weight:800;margin-bottom:18px;" id="fv-word">
+        ${letters.map((l,i)=>VS.has(l)?`<span id="fv-${i}" style="cursor:pointer;padding:4px 7px;border-radius:6px;border:2px solid var(--border2);transition:all .2s;" onclick="fvToggle(${i})">${l}</span>`:`<span style="padding:2px 3px;">${l}</span>`).join('')}
+      </div>
+      <button class="btn btn-orange" onclick="fvCheck(${q.vc})">✅ Kontrol</button>
+      <div id="fv-res" style="margin-top:10px;"></div></div>`;
+    window.fvToggle=(i)=>{const sp=document.getElementById('fv-'+i);if(window._fvSel.has(i)){window._fvSel.delete(i);sp.style.background='';sp.style.borderColor='var(--border2)';}else{window._fvSel.add(i);sp.style.background='var(--orange-lt)';sp.style.borderColor='var(--orange)';}};
+    window.fvCheck=(exp)=>{let cor=0;window._fvSel.forEach(i=>{if(VS.has(letters[i]))cor++;});const ok=cor===exp&&window._fvSel.size===exp;document.getElementById('fv-res').innerHTML=ok?`<div class="badge-ok">✅ Tüm ünlüleri buldun! (${exp} tane)</div>`:`<div class="badge-err">❌ ${cor} doğru. Toplam ${exp} ünlü var.</div>`;if(ok)sc++;qi++;setTimeout(render,1200);};
+  }
+  render();
+}
+
+// ACT 7: Dictation
+function actDC(el){
+  const ws=['masa','kalem','araba','güneş','okul','kedi','elma','çiçek','yıldız','defter'];
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=ws.length){actFinish(el,sc,ws.length,'dc');return;}
+    const w=ws[qi];
+    setTimeout(()=>say(w),300);
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Kelime ${qi+1}/${ws.length} — Sesi dinle ve yaz!</p>
+      <div style="text-align:center;margin-bottom:18px;display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-blue" onclick="say('${w}')">🔊 Tekrar Dinle</button>
+        <button class="btn btn-ghost btn-sm" onclick="say('${w}');say('${w}')">🔊🔊 2x</button>
+      </div>
+      <textarea class="write-input" id="dict-inp" placeholder="Duyduğun kelimeyi yaz..." style="text-align:center;font-size:22px;min-height:70px;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-orange" onclick="dcCheck('${w}')">✅ Kontrol</button>
+        <button class="btn btn-blue btn-sm" onclick="say('${w}')">🔊</button>
+      </div>
+      <div id="dc-res" style="margin-top:10px;"></div></div>`;
+    window.dcCheck=(ans)=>{const inp=document.getElementById('dict-inp').value.trim().toLowerCase();const ok=inp===ans.toLowerCase();document.getElementById('dc-res').innerHTML=ok?`<div class="badge-ok">✅ Doğru! "${ans}"</div>`:`<div class="badge-err">❌ Doğrusu: "${ans}"</div>`;if(ok)sc++;qi++;setTimeout(render,1200);};
+  }
+  render();
+}
+
+// ACT 8: Word Complete
+function actWC(el){
+  const qs=[{sent:'Ali __ atar.',opts:['top','su','kalem'],ans:0},{sent:'Kedi __ içer.',opts:['süt','ekmek','su'],ans:0},{sent:'__ doğuyor.',opts:['Ay','Güneş','Yıldız'],ans:1},{sent:'Bahçede __ açıyor.',opts:['çiçekler','arabalar','çocuklar'],ans:0},{sent:'Kitap __ güzeldir.',opts:['okumak','yazmak','koşmak'],ans:0},{sent:'Yağmur yağınca şemsiye __ alırım.',opts:['hep','ama','ne'],ans:0}];
+  let qi=0,sc=0;
+  function render(){
+    if(qi>=qs.length){actFinish(el,sc,qs.length,'wc');return;}
+    const q=qs[qi];
+    el.innerHTML=`<div class="card"><p style="font-size:12px;color:var(--ink2);margin-bottom:14px;">Soru ${qi+1}/${qs.length} — Boşluğu doldur</p>
+      <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;line-height:1.7;">${q.sent.replace('__','<span style="color:var(--orange);border-bottom:3px solid var(--orange);padding:0 10px;">___</span>')}</div>
+      <div style="display:grid;gap:9px;">${q.opts.map((o,i)=>`<button class="q-opt" onclick="ansWC(this,${i},${q.ans})">${o}</button>`).join('')}</div>
+    </div>`;
+    window.ansWC=(btn,c,a)=>{document.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');if(c===a){btn.classList.add('cor');sc++;showToast('✅ Doğru!');}else{btn.classList.add('wrn');document.querySelectorAll('.q-opt')[a].classList.add('cor');}qi++;setTimeout(render,1000);};
+  }
+  render();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+let _quizSet = [];
+function initQuiz(){
+  // Her seferinde QDATA'dan rastgele 12 soru seç
+  _quizSet = [...QDATA].sort(()=>Math.random()-.5).slice(0,12);
+  ST.qIdx=0; ST.qScore=0; renderQ();
+}
+function renderQ(){
+  const el=document.getElementById('quiz-area');
+  const total=_quizSet.length;
+  if(ST.qIdx>=total){
+    const pct=Math.round(ST.qScore/total*100);
+    const stars=pct===100?'⭐⭐⭐':pct>=70?'⭐⭐':'⭐';
+    const msg=pct===100?'Mükemmel! Tüm soruları doğru yaptın!':pct>=70?'Çok iyi! Biraz daha pratik yap.':'Devam et, pratik mükemmelleştirir!';
+    el.innerHTML=`<div class="card" style="text-align:center;padding:36px;">
+      <div style="font-size:52px;margin-bottom:10px;">🎯</div>
+      <div style="font-size:32px;margin-bottom:6px;">${stars}</div>
+      <h2 style="font-size:26px;font-weight:900;color:var(--orange);">${ST.qScore}/${total} Doğru</h2>
+      <div style="font-size:40px;font-weight:900;color:var(--orange);margin:8px 0;">%${pct}</div>
+      <p style="color:var(--ink2);margin:10px 0 22px;">${msg}</p>
+      <button class="btn btn-orange" style="width:100%;justify-content:center;" onclick="initQuiz()">🔄 Yeni Sorularla Tekrar Dene</button>
+    </div>`;
+    addXP(ST.qScore*8,'🎯','Sınav Tamamlandı!');
+    return;
+  }
+  const q=_quizSet[ST.qIdx];
+  const prog=_quizSet.map((_,i)=>`<div style="flex:1;height:6px;border-radius:3px;background:${i<ST.qIdx?'var(--green)':i===ST.qIdx?'var(--orange)':'var(--border2)'};transition:background .3s;"></div>`).join('');
+  el.innerHTML=`<div class="card">
+    <div style="display:flex;gap:3px;margin-bottom:16px;">${prog}</div>
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:8px;font-weight:600;">Soru ${ST.qIdx+1} / ${total}</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:18px;line-height:1.5;color:var(--ink);">${q.q}</div>
+    <div style="display:grid;gap:9px;">${q.opts.map((o,i)=>`<button class="q-opt" onclick="ansQ(this,${i},${q.cor})">${o}</button>`).join('')}</div>
+  </div>`;
+}
+function ansQ(btn,c,cor){
+  document.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
+  if(c===cor){btn.classList.add('cor');ST.qScore++;showToast('✅ Doğru!');}
+  else{btn.classList.add('wrn');document.querySelectorAll('.q-opt')[cor].classList.add('cor');showToast('❌ Yanlış!');}
+  ST.qIdx++; setTimeout(renderQ,1100);
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function initProg(){
+  const lvls=[{m:0,l:'Başlangıç'},{m:150,l:'Temel'},{m:400,l:'Gelişiyor'},{m:700,l:'Orta'},{m:1100,l:'İleri'}];
+  const lv=[...lvls].reverse().find(x=>ST.xp>=x.m)||lvls[0];
+  const skills=[
+    {n:'Alfabe Bilgisi',pct:Math.round(ST.learnedL.length/29*100),c:'var(--orange)',i:'🔤',d:ST.learnedL.length+'/29 harf'},
+    {n:'Hece Oluşturma',pct:Math.min(100,ST.learnedS.length*5),c:'var(--blue)',i:'🔵',d:ST.learnedS.length+' hece'},
+    {n:'Okuma',pct:35,c:'var(--green)',i:'📖',d:'Devam ediyor'},
+    {n:'Cümle Kurma',pct:Math.min(100,ST.sentDone*10),c:'var(--purple)',i:'🧩',d:ST.sentDone+' cümle kuruldu'},
+    {n:'Etkinlikler',pct:Math.min(100,ST.actsDone*12),c:'var(--yellow)',i:'🎮',d:ST.actsDone+' tamamlandı'},
+  ];
+  document.getElementById('prog-area').innerHTML=`
+    <div class="card" style="margin-bottom:14px;text-align:center;background:linear-gradient(135deg,var(--orange),#FF9A5C);color:white;border:none;">
+      <div style="font-size:42px;margin-bottom:8px;">${ST.avatar}</div>
+      <div style="font-size:20px;font-weight:900;">${ST.name}</div>
+      <div style="opacity:.9;font-size:13px;margin-top:4px;">${lv.l} · ${ST.xp} XP · 🔥 ${ST.streak} gün seri</div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="sec-title">📊 Beceri Gelişimim</div>
+      ${skills.map(s=>`<div class="prog-row">
+        <div class="prog-lbl"><span>${s.i} ${s.n} — <span style="color:var(--ink3);font-size:11px;">${s.d}</span></span><span style="font-weight:700;color:${s.c};">${s.pct}%</span></div>
+        <div class="pbar-bg"><div class="pbar-fill" style="width:${s.pct}%;background:${s.c};"></div></div>
+      </div>`).join('')}
+    </div>
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="card" style="text-align:center;"><div style="font-size:34px;">🔤</div><div style="font-size:24px;font-weight:900;color:var(--orange);margin-top:6px;">${ST.learnedL.length}</div><div style="font-size:12px;color:var(--ink2);">Öğrenilen Harf</div>${ST.learnedL.length?`<div style="font-size:10px;color:var(--ink3);margin-top:4px;">${ST.learnedL.join(' ')}</div>`:''}</div>
+      <div class="card" style="text-align:center;"><div style="font-size:34px;">🔵</div><div style="font-size:24px;font-weight:900;color:var(--blue);margin-top:6px;">${ST.learnedS.length}</div><div style="font-size:12px;color:var(--ink2);">Öğrenilen Hece</div>${ST.learnedS.length?`<div style="font-size:10px;color:var(--ink3);margin-top:4px;">${ST.learnedS.slice(0,8).join(' ')}${ST.learnedS.length>8?'…':''}</div>`:''}</div>
+      <div class="card" style="text-align:center;"><div style="font-size:34px;">⚡</div><div style="font-size:24px;font-weight:900;color:var(--yellow);margin-top:6px;">${ST.xp}</div><div style="font-size:12px;color:var(--ink2);">Toplam XP</div></div>
+      <div class="card" style="text-align:center;"><div style="font-size:34px;">🔥</div><div style="font-size:24px;font-weight:900;color:var(--orange);margin-top:6px;">${ST.streak}</div><div style="font-size:12px;color:var(--ink2);">Günlük Seri</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="sec-title">🗺️ Öğrenme Yolu</div>
+      ${[
+        {s:'1',t:'Alfabeyi Öğren',sub:'29 Türkçe harfi tanı',done:ST.learnedL.length>=10,i:'🔤',sc:'alphabet'},
+        {s:'2',t:'Hece Oluştur',sub:'Harf + harf = hece!',done:ST.learnedS.length>=5,i:'🔵',sc:'syllable'},
+        {s:'3',t:'Heceli Metin Oku',sub:'Adım adım okumayı öğren',done:false,i:'📖',sc:'reading'},
+        {s:'4',t:'Cümle Kur',sub:'Kelimeleri doğru sırala',done:ST.sentDone>=3,i:'🧩',sc:'sentences'},
+        {s:'5',t:'Etkinlik Yap',sub:'8 farklı oyun ve alıştırma',done:ST.actsDone>=4,i:'🎮',sc:'activities'},
+        {s:'6',t:'Sınavı Geç',sub:'Bilgini test et',done:ST.qScore>=8,i:'🎯',sc:'quiz'},
+      ].map(x=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--r-sm);background:${x.done?'var(--green-lt)':'var(--card2)'};margin-bottom:7px;cursor:pointer;" onclick="goScreen('${x.sc}')">
+          <div style="width:32px;height:32px;border-radius:50%;background:${x.done?'var(--green)':'var(--border2)'};color:${x.done?'white':'var(--ink3)'};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">${x.done?'✓':x.s}</div>
+          <div style="font-size:20px;">${x.i}</div>
+          <div><div style="font-weight:700;font-size:14px;">${x.t}</div><div style="font-size:11px;color:var(--ink2);">${x.sub}</div></div>
+          ${x.done?'<span style="margin-left:auto;color:var(--green);font-size:18px;">✅</span>':'<span style="margin-left:auto;color:var(--ink3);font-size:16px;">›</span>'}
+        </div>`).join('')}
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-bottom:4px;" onclick="doLogout()">🚪 Çıkış Yap</button>
+  `;
+}
+function confirmLogout(){
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+function doLogout(){
+  closeConfirm();
+  // Reset all state
+  Object.assign(ST,{
+    name:'',avatar:'🦁',age:'6-8',
+    xp:0,streak:1,
+    learnedL:[],learnedS:[],
+    sentDone:0,actsDone:0,
+    selAv:'🦁',selAge:'6-8',
+    selCons:null,selVow:null,
+    sentIdx:0,qIdx:0,qScore:0,readLv:0
+  });
+  // Reset UI
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('l-email').value='';
+  document.getElementById('l-pw').value='';
+  document.getElementById('xp-bar').style.width='0%';
+  document.getElementById('xp-num').textContent='0';
+  document.getElementById('streak-num').textContent='1';
+  document.getElementById('tb-name').textContent='—';
+  document.getElementById('tb-lvl').textContent='Başlangıç';
+  document.getElementById('tb-av').textContent='🦁';
+  // Reset screens to default
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sc-dashboard').classList.add('on');
+  document.querySelectorAll('.bnav').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.bnav')[0].classList.add('on');
+  // Reset auth tabs
+  authSwitch(document.querySelectorAll('.auth-tab')[0],'login');
+}
+</script>
+</body>
+</html>
